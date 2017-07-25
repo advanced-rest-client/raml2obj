@@ -31,7 +31,7 @@
   "preferGlobal": false,
   "scripts": {
     "json": "node test/output-json.js",
-    "test": "mocha 'test/*.spec.js' --reporter progress"
+    "test": "mocha 'test/*.spec.js'"
   },
   "files": [
     "index.js",
