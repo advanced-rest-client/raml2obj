@@ -1,7 +1,12 @@
 const raml2obj = require('..');
 const {assert} = require('chai');
 const parser = require('./parser');
-const {performance} = require('perf_hooks');
+var performance;
+try {
+  performance = require('perf_hooks').performance;
+} catch (e) {
+  return;
+}
 
 describe('raml2obj', () => {
   describe('RAML example API (ARC)', function() {

@@ -1,6 +1,11 @@
+os:
+  - linux
+  - osx
 language: node_js
-dist: trusty
-node_js: stable
+node_js:
+  - '7'
+  - '8'
+  - '9'
 script: "npm test"
 env:
   global:
