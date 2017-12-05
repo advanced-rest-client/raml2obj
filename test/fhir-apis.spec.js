@@ -39,17 +39,17 @@ describe('raml2obj', () => {
 
     it('Should parse it in time', function() {
       const measure = performance.getEntriesByName('Parsing time')[0];
-      assert.isBelow(measure.duration, 10000);
+      assert.isBelow(measure.duration, 15000);
     });
 
     it('Should expand it in time', function() {
       const measure = performance.getEntriesByName('Expanding time')[0];
-      assert.isBelow(measure.duration, 20000);
+      assert.isBelow(measure.duration, 25000);
     });
 
     it('Should finish in time', function() {
       const measure = performance.getEntriesByName('Overall time')[0];
-      assert.isBelow(measure.duration, 30000);
+      assert.isBelow(measure.duration, 35000);
     });
   });
 });
