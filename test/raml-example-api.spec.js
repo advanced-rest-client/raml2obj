@@ -45,11 +45,6 @@ describe('raml2obj', () => {
         assert.lengthOf(resp, 2);
       });
 
-      it('Trait response body is required', () => {
-        const resp = obj.traits.Paginated.responses[0].body[0];
-        assert.isTrue(resp.required);
-      });
-
       it('Trait response body has properties', () => {
         const body1 = obj.traits.Paginated.responses[0].body[0];
         assert.typeOf(body1.properties, 'array');
@@ -114,7 +109,6 @@ describe('raml2obj', () => {
 
       it('Type has properties', () => {
         const type = obj.annotationTypes.clearanceLevel;
-        assert.isTrue(type.required);
         assert.typeOf(type.properties, 'array');
         assert.lengthOf(type.properties, 2);
       });

@@ -20,7 +20,8 @@ describe('raml2obj', () => {
             type: 'string',
             required: true,
             description: 'Used to send a custom token.\n',
-            key: 'SpecialToken'
+            key: 'SpecialToken',
+            typePropertyKind: 'TYPE_EXPRESSION'
           }],
         responses: [{
             code: '401',
@@ -33,7 +34,7 @@ describe('raml2obj', () => {
 
     before(() => {
       return parser('test/worldmusic.raml')
-      .then(result => raml2obj.parse({
+      .then((result) => raml2obj.parse({
         json: result
       }))
       .then((result) => {
@@ -98,7 +99,6 @@ describe('raml2obj', () => {
 
       assert.strictEqual(get.queryString.name, 'queryString');
       assert.strictEqual(get.queryString.type, 'object');
-      assert.strictEqual(get.queryString.required, true);
       assert.strictEqual(get.queryString.properties.length, 2);
       assert.strictEqual(get.queryString.properties[0].name, 'start');
       assert.strictEqual(get.queryString.properties[0].required, false);
@@ -117,14 +117,10 @@ describe('raml2obj', () => {
       assert.strictEqual(post.body[0].name, 'application/json');
       assert.strictEqual(post.body[0].key, 'application/json');
       assert.strictEqual(post.body[0].type, 'object');
-      assert.strictEqual(post.body[0].required, true);
 
       const unionProperty = post.body[0].properties[11];
       assert.strictEqual(unionProperty.type, 'union');
       assert.lengthOf(unionProperty.anyOf, 2);
-      const unionOrProperty = post.body[0].properties[12];
-      assert.typeOf(unionOrProperty, 'array');
-      assert.lengthOf(unionOrProperty, 2);
     });
 
     it('should test the /entry resource', () => {
