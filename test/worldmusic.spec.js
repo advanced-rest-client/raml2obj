@@ -116,13 +116,15 @@ describe('raml2obj', () => {
       assert.strictEqual(post.body.length, 1);
       assert.strictEqual(post.body[0].name, 'application/json');
       assert.strictEqual(post.body[0].key, 'application/json');
-      assert.strictEqual(post.body[0].type, 'union');
+      assert.strictEqual(post.body[0].type, 'object');
       assert.strictEqual(post.body[0].required, true);
-      assert.lengthOf(post.body[0].anyOf, 4);
-      assert.lengthOf(post.body[0].anyOf[0].properties, 14);
-      assert.lengthOf(post.body[0].anyOf[1].properties, 14);
-      assert.lengthOf(post.body[0].anyOf[2].properties, 14);
-      assert.lengthOf(post.body[0].anyOf[3].properties, 14);
+
+      const unionProperty = post.body[0].properties[11];
+      assert.strictEqual(unionProperty.type, 'union');
+      assert.lengthOf(unionProperty.anyOf, 2);
+      const unionOrProperty = post.body[0].properties[12];
+      assert.typeOf(unionOrProperty, 'array');
+      assert.lengthOf(unionOrProperty, 2);
     });
 
     it('should test the /entry resource', () => {

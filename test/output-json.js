@@ -8,13 +8,16 @@ process.chdir(__dirname);
 const ramlFiles = glob.sync('*.raml');
 
 const ps = ramlFiles.map((ramlFile) => {
-  console.log(ramlFile);
+  console.log('Parsing', ramlFile);
   return parser(ramlFile)
-  .then(result => raml2obj.parse({json: result}))
   .then((result) => {
-    console.log('Saving', ramlFile);
-    const jsonString = JSON.stringify(result.json, null, 2);
+    console.log('Expanding', ramlFile);
+    return raml2obj.parse({json: result});
+  })
+  .then((result) => {
     const filename = ramlFile.replace('.raml', '.json');
+    console.log('Saving', filename);
+    const jsonString = JSON.stringify(result.json, null, 2);
     fs.writeFileSync(filename, jsonString);
   });
 });
