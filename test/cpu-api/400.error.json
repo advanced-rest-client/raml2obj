@@ -1,0 +1,12 @@
+[
+  {
+    "code": 3721,
+    "message": "REQUEST EXCEEDS 5 LEGS",
+    "application": "altea-sapi"
+  },
+  {
+    "code": 3526,
+    "message": "REQUEST TOTAL NUMBER IN PARTY",
+    "application": "altea-sapi"
+  }
+]

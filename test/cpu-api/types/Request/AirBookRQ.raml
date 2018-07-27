@@ -1,0 +1,105 @@
+#%RAML 1.0 Library
+
+usage: AirBookRQ
+
+uses:
+  airCommonTypes: ../../library/OTA/AirCommonTypes.raml
+  commonTypes: ../../library/OTA/CommonTypes.raml
+  simpleTypes: ../../library/OTA/SimpleTypes.raml
+
+types:
+  Queue_QueueGroup:
+    type: commonTypes.QueueGroup
+    required: true
+    properties:
+      DateTime:
+        description: "Date/time when the time initiated queuing should take place."
+        type: simpleTypes.DateOrDateTimeType
+        required: false
+      Text:
+        description: "Text describing why the queuing takes place."
+        type: simpleTypes.StringLength1to64
+        required: false
+  OTA_AirBookRQ:
+    description: "The Book Request message requests the system to book a specific itinerary for one or more identified passengers. The message contains optional pricing information, allowing the booking class availability and pricing to be rechecked as part of the booking process. Optional request information can include- Seat and Meal Requests, SSR, OSI, and Remarks."
+    type: object
+    required: false
+    properties:        
+      OTA_PayloadStdAttributes:
+        description: "Attribute group reference to OTA_PayloadStdAttributes"
+        type: commonTypes.OTA_PayloadStdAttributes
+        required: false
+      POS:
+        description: "This identifes the party making the booking request. Trading partners are open to define their own UniqueID."
+        type: commonTypes.POS_Type
+        required: true
+      AirItinerary:
+        description: "A collection of all flight segments requested for booking."
+        type: airCommonTypes.AirItineraryType
+        required: true
+      PriceInfo:
+        description: "Pricing information for the air itinerary to be booked e.g. this data could come from the OTA_AirPriceRS data."
+        type: [object, airCommonTypes.BookingPriceInfoType]
+        required: false
+        properties:
+          PricingPref:
+            description: "Identifies a pricing preference for this booking."
+            type: array
+            minItems: 0
+            maxItems: 10
+            items: airCommonTypes.PricingInfoGroup
+          ParticipationLevel:
+            description: "To specify the level of participation by a vendor in another system. Refer to OpenTravel Code List Participation Level Code (PLC)"
+            type: simpleTypes.OTA_CodeType
+            required: false
+          ExpandedPricingInd:
+            description: "When true, should return expanded pricing  that may include up to 99 taxes and/or service fees."
+            type: boolean
+            required: false
+      TravelerInfo:
+        description: "All traveler information relevant to a booking request."
+        type: airCommonTypes.TravelerInfoType
+        required: true
+      Fulfillment:
+        description: "All payment information relevant to a booking request."
+        type: airCommonTypes.FulfillmentType
+        required: false
+      Ticketing:
+        description: "Information used to specify the ticketing arrangement."
+        type: array
+        minItems: 0
+        maxItems: 99
+        items: airCommonTypes.TicketingInfoType
+      Queue:
+        description: "Specifies information necessary to place this booking on a particular host system queue."
+        type: array
+        minItems: 0
+        maxItems: 10
+        items: Queue_QueueGroup
+      BookingReferenceID:
+        description: "This is used for PNR record locator."
+        type: commonTypes.UniqueID_Type
+        required: false
+      EMD_Info:
+        description: "Provides the electronic miscellaneous document information for a previously issued EMD."
+        type: array
+        minItems: 0
+        maxItems: 999
+        items: airCommonTypes.EMD_Type
+      DonationInformation:
+        description: "Information about an independent charitable donation made with the air booking."
+        type: commonTypes.DonationType
+        required: false
+      Offer:
+        description: "Merchandising offers associated with the fare or traveler."
+        type: airCommonTypes.AirOfferChoiceType
+        required: false
+        # TPA_Extensions by passed
+      ResStatus:
+        description: "Specifies an action to be taken following the booking."
+        type: simpleTypes.TransactionActionType
+        required: false
+      PriceInd:
+        description: "When true, pricing and booking of flights is requested.  When false, only booking of flights is requested."
+        type: boolean
+        required: false

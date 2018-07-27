@@ -1,0 +1,108 @@
+#%RAML 1.0 Library
+
+usage: AirSeatMapRS
+
+uses:
+  airCommonTypes: ../../library/OTA/AirCommonTypes.raml
+  commonTypes: ../../library/OTA/CommonTypes.raml
+
+types:
+  OTA_AirSeatMapRS:
+    description: "The SeatMap Response message contains the seat map details for the request options given for the requested flight segments. This may include multiple seat maps in case of different seat maps returned for different passengers in the same flight segment."
+    type: OTA_AirSeatMapRS_Success_Types
+    required: false
+    properties:
+      OTA_PayloadStdAttributes:
+        description: "The OTA_PayloadStdAttributes defines the standard attributes that appear on the root element for all OpenTravel messages."
+        type: commonTypes.OTA_PayloadStdAttributes
+        required: true
+  AirTravelers_AirTravelerType:
+    type: airCommonTypes.AirTravelerType
+    properties:
+      InfantHasSeatInd:
+        description: "Infant with their own seat."
+        type: boolean
+        required: false
+      SSR_Ind:
+        description: "Special service request indicator."
+        type: boolean
+        required: false
+      UnaccompaniedMinorInd:
+        description: "Unaccompanied minor indicator."
+        type: boolean
+        required: false
+      OxygenRequiredInd:
+        description: "Oxygen required indicator."
+        type: boolean
+        required: false
+      PetInCabinInd:
+        description: "Pet in cabin indicator."
+        type: boolean
+        required: false
+      ServiceAnimalInd:
+        description: "Service animal indicator."
+        type: boolean
+        required: false
+  OTA_AirSeatMapRS_Success_Types:
+    type: object
+    required: false
+    properties:
+#      Success:
+#        description: "Standard way to indicate successful processing of an OpenTravel message. Returning an empty element of this type indicates success."
+#        type: commonTypes.SuccessType
+#        required: false
+      Warnings:
+        description: "Standard way to indicate successful processing of an OpenTravel message, but one in which warnings are generated."
+        type: commonTypes.WarningsType
+        required: false
+      SeatMapResponses:
+        description: "Seat map response element containing the results of the request."
+        type: object
+        required: false
+        properties:
+          SeatMapResponse:
+            description: "Seat map details for each flight segment in the input request."
+            type: array
+            required: true
+            maxItems: 99
+            items:
+              properties:
+                FlightSegmentInfo:
+                  description: "Seat map flight segment information."
+                  type: [object, airCommonTypes.FlightSegmentType]
+                  required: true
+                  properties:
+                    Warnings:
+                      type: commonTypes.WarningsType
+                      required: false
+                SeatMapDetails:
+                  description: "Seat map details."
+                  type: array
+                  required: true
+                  maxItems: 99
+                  items: airCommonTypes.SeatMapDetailsType
+                BookingReferenceID:
+                  description: "Booking reference (PNR record locator.)"
+                  type: array
+                  minItems: 0
+                  maxItems: 5
+                  items: commonTypes.UniqueID_Type
+                FareBasisCode:
+                  description: "Fare basis code associated with the seat that may be associated with a flight segment."
+                  type: airCommonTypes.FareBasisCodeType
+                  required: false
+                SeatUpgradeAppliedInd:
+                  description: "Upgrades included indicator. If true, this response includes upgrades in the seat map."
+                  type: boolean
+                  required: false
+          AirTravelers:
+            description: "Air traveler information"
+            type: object
+            required: false
+            properties:
+              AirTraveler:
+                description: "Air traveler detail."
+                type: array
+                minItems: 1
+                maxItems: 99
+                items: AirTravelers_AirTravelerType

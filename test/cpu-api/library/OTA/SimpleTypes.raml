@@ -1,0 +1,516 @@
+#%RAML 1.0 Library
+types:
+  ActionType:
+    description: Identifies an action to take place.
+    enum: ['Add-Update','Cancel','Delete','Add','Replace']
+    required: true
+  AgeQualifyingEnum:
+    description: An extensible list of age qualifying types.
+    enum: ['Additional occupant with adult','Additional occupant without adult','Adult','Child','Free adult','Free child','Infant','Over 21','Over 65','Senior ','Teenager','Under 10','Under 12','Under 17','Under 2','Under 21','Young driver','Younger driver','Other_']
+    required: true
+  AirTripDirectionType:
+    description: An enumerated list of air travel direction types.
+    enum: ['Outbound','Return','All']
+    required: true
+  AirTripType:
+    description: Identifies the trip type - one way, return, circle trip, open jaw.
+    enum: ['OneWay','OneWayOnly','Return','Circle','OpenJaw','Other','Outbound','OutboundSeasonRoundtrip','Non-directional','Inbound','Roundtrip']
+    required: true
+  AlphaLength1:
+    description: Used for an Alpha String, length exactly 1.
+    type: string
+    required: true
+    pattern: ^[a-zA-Z]{1}$
+  AlphaLength1to2:
+    description: Used for an Alpha String, length 1 to 2.
+    type: string
+    required: true
+    pattern: ^[a-zA-Z]{1,2}$
+  AlphaLength3:
+    description: Used for an Alpha String, length exactly 3.
+    type: string
+    required: true
+    pattern: ^[a-zA-Z]{3}$
+  AlphaLength4:
+    description: Used for an Alpha String, length exactly 4.
+    type: string
+    required: true
+    pattern: ^[a-zA-Z]{4}$
+  AlphaNumericStringLength1:
+    description: Used for Alpha-Numeric Strings, length 1.
+    type: string
+    required: true
+    pattern: ^[0-9a-zA-Z]{1}$
+  AlphaNumericStringLength1to14:
+    description: Used forAlpha-Numeric Strings, length 1 to 14.
+    type: string
+    required: true
+    pattern: ^[0-9a-zA-Z]{1,14}$
+  AlphaNumericStringLength1to19:
+    description: Used forAlpha-Numeric Strings, length 1 to 19.
+    type: string
+    required: true
+    pattern: ^[0-9a-zA-Z]{1,19}$
+  AlphaNumericStringLength1to2:
+    description: Used for Alpha-Numeric Strings, length 1 to 2.
+    type: string
+    required: true
+    pattern: ^[0-9a-zA-Z]{1,2}$
+  AlphaNumericStringLength1to3:
+    description: Used for Alpha-Numeric Strings, length 1 to 3.
+    type: string
+    required: true
+    pattern: ^[0-9a-zA-Z]{1,3}$
+  AlphaNumericStringLength1to8:
+    description: Used for Alpha-Numeric Strings, length 1 to 8.
+    type: string
+    required: true
+    pattern: ^[0-9a-zA-Z]{1,8}$
+  AmountDeterminationType:
+    description: Used to indicate if an amount is inclusive or exclusive of other charges, such as taxes, or is cumulative (amounts have been added to each other).
+    enum: ['Inclusive','Exclusive','Cumulative']
+    required: true
+  CabinType:
+    description: Specifies the cabin type (e.g. first, business, economy).
+    type: CabinType_AlphaNumericStringLength1 | CabinType_string
+  CabinType_AlphaNumericStringLength1:
+    type: AlphaNumericStringLength1
+    required: true
+    pattern: ^[0-9a-zA-Z]{1}$
+  CabinType_string:
+    enum: ['Cockpit','Suite','First','PremiumBusiness','Business','PremiumEconomy','Economy','All']
+    required: true
+  DateOrDateTimeType:
+    description: A construct to validate either a date or a dateTime value.
+    type: date-only | datetime
+    required: true
+  DateOrMonthDay:
+    description: A construct to validate either a date or a month and day value.
+    type: GMonthDay | date-only
+    required: true
+  DateOrTimeOrDateTimeType:
+    description: A construct to validate either a date or a time or a dateTime value.
+    type: time-only | date-only | datetime
+    required: true
+  DayOfWeekType:
+    description: A three letter abbreviation for the days of the week (e.g. may be the starting day for the availability requested, days of operation, rate effective day, etc.).
+    enum: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
+    required: true
+  DistanceUnitNameType:
+    description: Defines a set of valid values for the units in which distance is measured (i.e. mile or kilometer).
+    enum: ['Mile','Km','Block']
+    required: true
+  DurationType:
+    description: Allows for the specification of a night duration.
+    type: integer | NightDurationType
+    required: true
+  Enum_Status:
+    description: An extensible list of inventory statuses.
+    enum: ['Cancel_ConfirmedRequested','Cancel_Listing','Cancel_OnlyIfRequestedSegmentIsAvailable','CancellationRecommended','CodeToReportActionTakenFromPreviousAccess','IfHolding_ThenCancel','IfNotHolding_ThenNeed','IfNotHolding_ThenSold','List_AddToWaitingList','List_SpaceAvailable','Need','Need_SegmentSpecifiedOrAlternative','Sold','Sold_OnFreeSaleBasis','SpaceRequested','Cancelled','Confirming','Confirming_FromWaitlist','NoActionTaken','Unable_HaveWaitlisted','Unable_FlightDoesNotOperate','Unable_ToAcceptSale','Waitlist_Closed','Have_Listed','Have_Requested','HoldsConfirmed','Reconfirmed','HaveSold','SpaceAlreadyRequested','OK','HaveCancelled','PendingConfirmation','DeferredFromWaitList','StaffRequest','Active','Available','BookOnBoard','Closed','Confirmed','Declined','NotApplicable','Offered','OnRequest','Prepaid','Shared','Waitlisted','Guaranteed','Held','Booked','Open','SegmentConfirmedAfterScheduleChange','SegmentConfirmed','Overbook','Waitlisted_PriorityA','Waitlisted_PriorityB','Waitlisted_PriorityC','Waitlisted_PriorityD','Jumpseat','NeedGroupSpace','PriorityGroup','Unable_GroupWaitlisted','Waitlist_Group','SegmentWasWaitlist','SegmentWasReconfirmed','SegmentWasPending','BookedOutsideSystem','PendingCancel','MandatoryNeed','NeedProtection','PendingRequest','PendingCancellation','StaffListingInSSR','LinkSold_HistoryOnly','CodeshareSold_HistoryOnly','SuperGuaranteedSell_HistoryOnly','Confirming_NewSchedule','OnRequest_NewSchedule','PlacingOnWaitlist_NewSchedule','StandbyBoarded','Flown','NoRecordAvailable_NOREC','GoShow','NoShow','OffloadFirmBooked','OffloadOfGoShow','Downgrade_ToEconomyClass','DownUpgrade_ToBusinessClass','Upgrade_ToFirstClass','OffloadOfNoRecordPassenger','HoldsConfirmed_ConditionalEMD_Required','HoldsConfirmed_EMD_Required','HoldsConfirmed_EMD_Issued','HoldsConfirmed_NewSchedule_EMDAlreadyIssued','Other_']
+    required: true
+  FlightNumberType:
+    description: Identifies a flight number (1 to 4 numbers followed by optional uppercase A - Z, which specifies an operational suffix) or OPEN or ARNK.
+    type: FlightNumberType_string
+  FlightNumberType_string:
+    type: string
+    required: true
+    pattern: ^([0-9]{1,4}[A-Z]?|OPEN|ARNK)$
+  FlightTypeType:
+    description: Specifies a particular type of flight (e.g. direct, stopover).
+    enum: ['Nonstop','Direct','Connection','SingleConnection','DoubleConnection','OneStopOnly']
+    required: true
+  HotelResStatusType:
+    description: A union between TransactionActionType and PMS_ResStatusType. Used in messages that communicate between reservation systems as well as between a reservation and property management system. In addition to the TransactionActionType and PMS_ResStatusType, the UpperCaseAlphaLength1to2 may be used for company specific codes.
+    type: UpperCaseAlphaLength1to2 | TransactionActionType | PMS_ResStatusType
+    required: true
+  IncludeExcludeType:
+    description: Specifies the applicability of the criteria to which it is related.
+    enum: ['Include','Exclude','Required','Allowed']
+    required: true
+  InfoSourceType:
+    description: Used to specify the source of the data being exchanged.
+    type: string
+    required: true
+    minLength: 1
+    maxLength: 32
+  InventoryStatusType:
+    description: Defines a set of valid status values, allowing the selection of a specific group based on availability, or allowing the reservation status to be made known.  Examples of such values include Available, OnRequest, Confirmed, etc.
+    enum: ['Available','Unavailable','OnRequest','Confirmed','All','Waitlist','SupplierBooked']
+    required: true
+  ISO3166:
+    description: Specifies a 2 character country code as defined in ISO3166.
+    type: string
+    required: true
+    pattern: ^[a-zA-Z]{2}$
+  ISO4217:
+    description: Specifies a 3 character currency code as defined in ISO4217.
+    type: string
+    required: true
+    pattern: ^[a-zA-Z]{3}$
+  ListOfISO3166:
+    description: List of country codes in ISO 3166 format.
+    type: ISO3166[]
+    required: true
+  ListOfNumericStringLength1to16:
+    description: List of NumericStringLength1to16
+    type: NumericStringLength1to16[]
+    required: true
+  ListOfOTA_CodeType:
+    description: List of OpenTravel Codes.
+    type: OTA_CodeType[]
+    required: true
+  ListOfRPH:
+    description: List of Reference Place Holders.
+    type: RPH_Type[]
+    required: true
+  ListOfStringLength1to32:
+    description: List of StringLength1to32.
+    type: StringLength1to32[]
+    required: true
+  ListOfStringLength1to8:
+    description: List of StringLength1to8.
+    type: StringLength1to8[]
+    required: true
+  MealType:
+    description: Airline meal types.
+    enum: ['AVML','BBML','BLML','CHML','DBML','FPML','GFML','HFML','HNML','KSML','LCML','LFML','LPML','LSML','MOML','NLML','ORML','PRML','RVML','SFML','SPML','VGML','VLML','RGML']
+    required: true
+  MMYYDate:
+    description: Month and year information.
+    type: string
+    required: true
+    pattern: ^(0[1-9]|1[0-2])[0-9][0-9]$
+  Money:
+    description: Specifies an amount, max 3 decimals.
+    type: number
+    required: true
+  MoneyOrPercentageType:
+    description: A union of money and percentage so that the appropriate data can be sent in a single field.
+    type: Money | Percentage
+    required: true
+  NightDurationType:
+    description: Provides the ability to define a duration in terms of nights rather than days.
+    type: string
+    required: true
+    pattern: ^P[0-9]{1,3}N$
+  Numeric0to10:
+    description: Used for Numeric values, from 0 to 10 inclusive.
+    type: integer
+    required: true
+    minimum: 0
+    maximum: 10
+  Numeric0to4:
+    description: Used for Numeric values, from 0 to 4 inclusive.
+    type: integer
+    required: true
+    minimum: 0
+    maximum: 4
+  Numeric0to99:
+    description: Used for Numeric values, from 0 to 99 inclusive.
+    type: integer
+    required: true
+    minimum: 0
+    maximum: 99
+  Numeric0to999:
+    description: Used for Numeric values, from 0 to 999 inclusive.
+    type: integer
+    required: true
+    minimum: 0
+    maximum: 999
+  Numeric0to9999:
+    description: Used for Numeric values, from 0 to 9999 inclusive.
+    type: integer
+    required: true
+    minimum: 0
+    maximum: 9999
+  Numeric1to3:
+    description: Used for Numeric values, from 1 to 3 inclusive.
+    type: integer
+    required: true
+    minimum: 1
+    maximum: 3
+  Numeric1to4:
+    description: Used for Numeric values, from 1 to 4 inclusive.
+    type: integer
+    required: true
+    minimum: 1
+    maximum: 4
+  Numeric1to99:
+    description: Used for Numeric values, from 1 to 99 inclusive.
+    type: integer
+    required: true
+    minimum: 1
+    maximum: 99
+  Numeric1to999:
+    description: Used for Numeric values, from 1 to 999 inclusive.
+    type: integer
+    required: true
+    minimum: 1
+    maximum: 999
+  Numeric1to9999:
+    description: Used for Numeric values, from 1 to 9999 inclusive.
+    type: integer
+    required: true
+    minimum: 1
+    maximum: 9999
+  NumericStringLength15to50:
+    description: Used for Numeric Strings, length 15 to 50.
+    type: string
+    required: true
+    pattern: ^[0-9]{15,50}$
+  NumericStringLength1to16:
+    description: Used for Numeric Strings, length 1 to 16.
+    type: string
+    required: true
+    pattern: ^[0-9]{1,16}$
+  NumericStringLength1to19:
+    description: Used for Numeric Strings, length 1 to 19.
+    type: string
+    required: true
+    pattern: ^[0-9]{1,19}$
+  NumericStringLength1to3:
+    description: Used for Numeric Strings length 1 to 3.
+    type: string
+    required: true
+    pattern: ^[0-9]{1,3}$
+  NumericStringLength1to5:
+    description: Used for Numeric Strings, length 1 to 5.
+    type: string
+    required: true
+    pattern: ^[0-9]{1,5}$
+  NumericStringLength1to8:
+    description: Used for Numeric Strings, length 1 to 8.
+    type: string
+    required: true
+    pattern: ^[0-9]{1,8}$
+  NumericStringLength2:
+    description: Used for Numeric Strings, length exactly 2.
+    type: string
+    required: true
+    pattern: ^[0-9]{2}$
+  NumericStringLength4:
+    description: Used for Numeric Strings, length exactly 4.
+    type: string
+    required: true
+    pattern: ^[0-9]{4}$
+  OfficeLocationType:
+    description: Specifes the location type of an office (e.g. main, field, division).
+    enum: ['Main','Field','Division','Regional','Remote']
+    required: true
+  OTA_CodeType:
+    description: Used for codes in the OpenTravel Code tables. Possible values of this pattern are 1, 101, 101.EQP, or 101.EQP.X.
+    type: string
+    required: true
+    pattern: ^[0-9A-Z]{1,3}(\.[A-Z]{3}(\.X){0,1}){0,1}$
+  PaymentCardCodeType:
+    description: The 2 digit code that identifies the credit card.
+    type: PaymentCardCodeType_UpperCaseAlphaLength1to2
+  PaymentCardCodeType_UpperCaseAlphaLength1to2:
+    enum: ['AX','BC','BL','CB','DN','DS','EC','JC','MA','MC','TP','UP','VI']
+    required: true
+  Percentage:
+    description: Used for percentage values.
+    type: number
+    required: true
+    minimum: 0.00
+    maximum: 100.00
+  PMS_ResStatusType:
+    description: Statuses that exist in a property management system (PMS).
+    enum: ['Reserved','Requested','Request denied','No-show','Cancelled','In-house','Checked out','Waitlisted']
+    required: true
+  PreferLevelType:
+    description: Used to specify a preference level for something that is or will be requested (e.g. a supplier of a service, a type of service, a form of payment, etc.).
+    enum: ['Only','Unacceptable','Preferred','Required','NoPreference']
+    required: true
+  PricingType:
+    description: An enumerated type that defines how a service is priced.  Values;  Per stay,  Per person, Per night, Per person per night,  Per use.
+    enum: ['Per stay','Per person','Per night','Per person per night','Per use']
+    required: true
+  RateIndicatorType:
+    description: An enumerated type indicating special conditions with the rate  Valid values; ChangeDuringStay, MultipleNights, Exclusive, OnRequest, LimitedAvailability.
+    enum: ['ChangeDuringStay','MultipleNights','Exclusive','OnRequest','LimitedAvailability','AvailableForSale','ClosedOut','OtherAvailable','UnableToProcess','NoAvailability','RoomTypeClosed','RatePlanClosed','LOS_Restricted','Restricted','DoesNotExist']
+    required: true
+  RatePeriodSimpleType:
+    description: The RatePeriodSimpleType simple type defines a set of valid values for the type of rate that may be applied.  Typically rates differ based upon the duration, and the actual rate is then expressed in terms of the period of the rental.
+    enum: ['Hourly','Daily','Weekly','Monthly','WeekendDay','Other','Package','Bundle','Total']
+    required: true
+  RPH_Type:
+    description: The Reference Place Holder (RPH) is an index code used to identify an instance in a collection of like items (e.g. used to assign individual passengers or clients to particular itinerary items).
+    type: string
+    required: true
+    pattern: ^[0-9]{1,8}$
+  SeatDirectionType:
+    description: Identifies the orientation of a seat relative to the direction of  travel.
+    enum: ['Facing','Back','Airline','Lateral','Unknown']
+    required: true
+  SeatType:
+    description: Identifies the position of a seat, e.g. Window, Aisle etc.
+    enum: ['Window','Aisle','Table','Middle','Individual']
+    required: true
+  ShortDescriptionType:
+    description: A textual description.
+    type: string
+    required: true
+    minLength: 0
+    maxLength: 64
+  StateProvCodeType:
+    description: The standard code or abbreviation for the state, province, or region.
+    type: StringLength1to8
+    required: true
+    minLength: 2
+  StringLength0to128:
+    description: Used for Character Strings, length 0 to 128.
+    type: string
+    required: true
+    minLength: 0
+    maxLength: 128
+  StringLength0to255:
+    description: Used for Character Strings, length 0 to 255.
+    type: string
+    required: true
+    minLength: 0
+    maxLength: 255
+  StringLength0to32:
+    description: Used for Character Strings, length 0 to 32.
+    type: string
+    required: true
+    minLength: 0
+    maxLength: 32
+  StringLength0to64:
+    description: Used for Character Strings, length 0 to 64.
+    type: string
+    required: true
+    minLength: 0
+    maxLength: 64
+  StringLength0to8:
+    description: Used for Character Strings, length 0 to 8.
+    type: string
+    required: true
+    minLength: 0
+    maxLength: 8
+  StringLength1to128:
+    description: Used for Character Strings, length 1 to 128.
+    type: string
+    required: true
+    minLength: 1
+    maxLength: 128
+  StringLength1to16:
+    description: Used for Character Strings, length 1 to 16.
+    type: string
+    required: true
+    minLength: 1
+    maxLength: 16
+  StringLength1to180:
+    description: Used for Character Strings, length 1 to 180.
+    type: string
+    required: true
+    minLength: 1
+    maxLength: 180
+  StringLength1to255:
+    description: Used for Character Strings, length 1 to 255.
+    type: string
+    required: true
+    minLength: 1
+    maxLength: 255
+  StringLength1to32:
+    description: Used for Character Strings, length 1 to 32.
+    type: string
+    required: true
+    minLength: 1
+    maxLength: 32
+  StringLength1to64:
+    description: Used for Character Strings, length 1 to 64.
+    type: string
+    required: true
+    minLength: 1
+    maxLength: 64
+  StringLength1to8:
+    description: Used for Character Strings, length 1 to 8.
+    type: string
+    required: true
+    minLength: 1
+    maxLength: 8
+  StringLength3:
+    description: Used for Strings, length exactly 3.
+    type: string
+    required: true
+    minLength: 3
+    maxLength: 3
+  TicketType:
+    description: Specifies the type of ticket document (e.g. electronic, paper).
+    enum: ['eTicket','Paper','MCO','EMD-A','EMD-S']
+    required: true
+  TimeOrDateTimeType:
+    description: Allows for the specification of a date time or just time.
+    type: time-only | datetime
+    required: true
+  TimeUnitType:
+    description: Defines the unit in which the time is expressed (e.g. year, day, hour).
+    enum: ['Year','Month','Week','Day','Hour','Second','FullDuration','Minute']
+    required: true
+  TrainPolicyCodeType:
+    description: A train policy code.
+    enum: ['Minimum','Maximum']
+    required: true
+  TransactionActionType:
+    description: To specify the type of action requested when more than one function could be handled by the message.
+    enum: ['Book','Quote','Hold','Initiate','Ignore','Modify','Commit','Cancel','CommitOverrideEdits','VerifyPrice','Ticket']
+    required: true
+  TransactionStatusType:
+    description: To specify a status to the transaction, usually in the response message, of the action specifed in the request message.
+    enum: ['Pending','Cancelled','Modified','Committed','Ignored','OnHold','Unsuccessful','PendingCancellation','PendingPurchase','Requested','Reserved','Unchanged','RequestDenied','Ticketed']
+    required: true
+  TransferActionType:
+    description: Used to indicate the transfer action status.
+    enum: ['Automatic','Mandatory','Selectable']
+    required: true
+  UpperCaseAlphaLength1to2:
+    description: Used for an Alpha String, length 1 to 2 (for letter codes).
+    type: string
+    required: true
+    pattern: ^[A-Z]{1,2}$
+  UpperCaseAlphaLength1to3:
+    description: Used for an Alpha String, length 1 to 3 (for letter codes).
+    type: string
+    required: true
+    pattern: ^[A-Z]{1,3}$
+  UpperCaseAlphaNumericLength2:
+    description: Used for an Upper Alpha String and Numeric, length 2.
+    type: string
+    required: true
+    pattern: ^[A-Z0-9]{2}$
+  UpperCaseAlphaNumericLength2to3:
+    description: Used for an Upper Alpha String and Numeric, length 2 to 3.
+    type: string
+    required: true
+    pattern: ^[A-Z0-9]{2,3}$
+  UpperCaseAlphaNumericLength3to5:
+    description: Used for an Upper Alpha String and Numeric, length 3 to 5.
+    type: string
+    required: true
+    pattern: ^[A-Z0-9]{3,5}$
+  UTC_TimeZoneOffset:
+    description: Identifies a time zone by an offset from the UTC time by adding a positive or negative time.
+    type: string
+    required: true
+  YearOrYearMonthType:
+    description: A construct to validate either a year or a year and month value.
+    type: GYear | GYearMonth
+    required: true
+  YesNoType:
+    description: Used to indicate a positive or negative choice. Not recommended for use, use xs:boolean.
+    enum: ['Yes','No']
+    required: true
+  GYear:
+    type: string
+    pattern: ^([1-9][0-9]{3,}|0[0-9]{3})(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))$
+    required: true
+  GYearMonth:
+    type: string
+    pattern: ^([1-9][0-9]{3,}|0[0-9]{3})-(0[1-9]|1[0-2])(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))$
+    required: true
+  GMonthDay:
+    type: string
+    required: true
+    pattern: ^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))$
+

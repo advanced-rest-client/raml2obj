@@ -1,0 +1,123 @@
+#%RAML 1.0 Library
+
+usage: AirSeatMapRQ
+
+uses:
+  airCommonTypes: ../../library/OTA/AirCommonTypes.raml
+  commonTypes: ../../library/OTA/CommonTypes.raml
+  simpleTypes: ../../library/OTA/SimpleTypes.raml
+
+types:
+  AirTraveler_AirTravelerType:
+    type: airCommonTypes.AirTravelerType
+    properties: 
+      InfantHasSeatInd:
+        description: "Infant with their own seat."
+        type: boolean
+        required: false
+      SSR_Ind:
+        description: "Special service request indicator."
+        type: boolean
+        required: false
+      UnaccompaniedMinorInd:
+        description: "Unaccompanied minor indicator."
+        type: boolean
+        required: false
+      OxygenRequiredInd:
+        description: "Oxygen required indicator."
+        type: boolean
+        required: false
+      PetInCabinInd:
+        description: "Pet in cabin indicator."
+        type: boolean
+        required: false
+      ServiceAnimalInd:
+        description: "Service animal indicator."
+        type: boolean
+        required: false
+  OTA_AirSeatMapRQ:
+    description: "OpenTravel Seat Map request. Note- The Seat map Request message requests seat map details for one or  more flight segments  for specific dates. The request can include the PNR number, frequent flier numbers, etc. The seat map response contains the actual seat map based on the input conditions in the request message. Every flight segment will have a separate seat map detail. "
+    type: commonTypes.OTA_PayloadStdAttributes
+    required: false
+    properties: 
+      POS:
+        description: "Point of sale object."
+        type: commonTypes.POS_Type
+        required: true
+      SeatMapRequests:
+        description: "Seat map request detail criteria."
+        type: object
+        required: true
+        properties: 
+          SeatMapRequest:
+            description: "The number of flight segments for which the Seat Map is requested for. If an itinerary consists of multiple flight segments then corresponding number of SeatMapRequest elements will be sent in the request. If there is a gauge change (equipment change) within a flight segment an error response is expected. In such a case two different Seat MapRequest elements need to be sent requesting seatmap for two flight segments for different gauges."
+            type: array
+            minItems: 0
+            maxItems: 99
+            items: 
+              properties: 
+                FlightSegmentInfo:
+                  description: "Flight segment information of the flight segment for which seat map information is requested."
+                  type: airCommonTypes.FlightSegmentType
+                  required: false
+                SeatDetails:
+                  description: "Object to hold the seat details that is to be requested."
+                  type: object
+                  required: false
+                  properties: 
+                    CabinClass:
+                      description: "If the seat map display is to be requested for a specific cabin class, the cabin class can be specified in this element."
+                      type: array
+                      minItems: 0
+                      maxItems: 5
+                      items: 
+                        properties: 
+                          CabinType:
+                            description: "Cabin type for which the seat map is requested, which could be either First, Business or Economy."
+                            type: simpleTypes.CabinType
+                            required: false
+                    ResBookDesignations:
+                      description: "A collection of ResBookDesignations."
+                      type: object
+                      required: false
+                      properties: 
+                        ResBookDesignation:
+                          description: "If the  seat map display is requested for the cabin class in which a particular booking designator code (booking class) lies then that booking class can be specified in this element."
+                          type: array
+                          minItems: 0
+                          maxItems: 10
+                          items: 
+                            properties: 
+                              ResBookDesigCode:
+                                description: "If the booking class is know for which the seat map is to be requested then the specific Booking class code can be entered here. The response will have the seat map for the cabin class in which the said booking classcode belongs."
+                                type: simpleTypes.UpperCaseAlphaLength1to2
+                                required: false
+                    FareBasisCode:
+                      description: "Fare basis code associated with the seat that may be associated with a flight segment."
+                      type: airCommonTypes.FareBasisCodeType
+                      required: false
+                    SeatUpgradeInd:
+                      description: "SeatUpgrade will be set to true if the passenger is looking for an upgrade and the seat map response expected is after the upgrade, if applicable. "
+                      type: boolean
+                      required: false
+                    TravelerRefNumberRPHs:
+                      description: "Reference to one or more travelers for whom seat map is requested for this flight segment. RPH Value from TravelerRefNumber of AirTravelerType element will be mapped here."
+                      type: simpleTypes.ListOfRPH
+                      required: false
+      AirTravelers:
+        description: "Collection of AirTravelers."
+        type: object
+        required: false
+        properties: 
+          AirTraveler:
+            description: "This specifies the quantity and types of passengers."
+            type: array
+            minItems: 0
+            maxItems: 99
+            items: AirTraveler_AirTravelerType
+      BookingReferenceID:
+        description: "This is used for PNR record locator. If there are more than one PNR numbers because of multiple airlines in the itinerary then this element could be repeated."
+        type: array
+        minItems: 0
+        maxItems: 5
+        items: commonTypes.UniqueID_Type

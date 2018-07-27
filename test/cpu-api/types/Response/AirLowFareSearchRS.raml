@@ -1,0 +1,38 @@
+#%RAML 1.0 Library
+
+usage: AirLowFareSearchRS
+
+uses:
+  airCommonTypes: ../../library/OTA/AirCommonTypes.raml
+  commonTypes: ../../library/OTA/CommonTypes.raml
+
+types:
+  OTA_AirLowFareSearchRS:
+    description: "The Low Fare Search Response message contains a number of Priced Itinerary options. Each includes- A set of available flights matching the client's request; Pricing information including taxes and full fare breakdown for each passenger type; Ticketing information; and Fare Basis Codes and the information necessary to make a rules entry. This message contains similar information to a standard airline CRS or GDS Low Fare Search Response message."
+    type: OTA_AirLowFareSearchRS_Success_Types
+    required: false
+    properties:
+      OTA_PayloadStdAttributes:
+        description: "The OTA_PayloadStdAttributes defines the standard attributes that appear on the root element for all OpenTravel Messages."
+        type: commonTypes.OTA_PayloadStdAttributes
+        required: true
+  OTA_AirLowFareSearchRS_Success_Types:
+    type: object
+    required: false
+    properties:
+#      Success:
+#        description: "Success: Standard way to indicate successful processing of an OpenTravel message. Returning an empty element of this type indicates success."
+#        type: commonTypes.SuccessType
+#        required: false
+      Warnings:
+        description: "Standard way to indicate successful processing of an OpenTravel message, but one in which warnings are generated."
+        type: commonTypes.WarningsType
+        required: false
+      PricedItineraries:
+        description: "Successfull Low Fare priced itineraries in response to a Low Fare Search request."
+        type: airCommonTypes.PricedItinerariesType
+        required: false
+      Offers:
+        description: "Merchandising offers"
+        type: airCommonTypes.AirOfferChoiceType
+        required: false

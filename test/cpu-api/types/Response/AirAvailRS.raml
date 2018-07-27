@@ -1,0 +1,187 @@
+#%RAML 1.0 Library
+
+uses:
+  airPreferences: ../../library/OTA/AirPreferences.raml
+  airCommonTypes: ../../library/OTA/AirCommonTypes.raml
+  commonTypes: ../../library/OTA/CommonTypes.raml
+  simpleTypes: ../../library/OTA/SimpleTypes.raml
+
+types:
+  BookingClassAvail_BookingClassAvailabilityGroup:
+    type: airCommonTypes.BookingClassAvailabilityGroup
+    required: true
+    properties:
+      Meal:
+        description: "The meal service for this booking class."
+        type: array
+        minItems: 0
+        maxItems: 5
+        items:
+          properties:
+            MealService:
+              description: "Used to designate a meal or beverage service."
+              type: airCommonTypes.MealServiceType
+              required: true
+            RPH:
+              description: "RPH refers back to Marketing Cabin Type."
+              type: simpleTypes.RPH_Type
+              required: false   
+  FlightSegment_SmokingIndicatorGroup:
+    type: commonTypes.SmokingIndicatorGroup
+    required: true
+    properties:
+      Content:
+        description: "FlightSegmentType"
+        type: airCommonTypes.FlightSegmentType
+        required: true
+      TrafficRestrictionInfo:
+        description: Traffic restriction information for a specific flight.
+        type: array
+        minItems: 0
+        maxItems: 99
+        items:
+          properties:
+            Content:
+              description: "FreeTextType"
+              type: commonTypes.FreeTextType
+              required: true
+            Code:
+              description: "The traffic restriction that applies to this flight segment. Refer to OpenTravel Code list TRC (Traffic Restriction Code)."
+              type: simpleTypes.OTA_CodeType
+              required: false
+      Comment:
+        description: "Any special comments on the leg. eg. operated by  XX. "
+        type: array
+        minItems: 0
+        maxItems: 10
+        items: commonTypes.FreeTextType
+      MarketingCabin:
+        description: "The airline specific branding for cabins."
+        type: array
+        minItems: 0
+        maxItems: 9
+        items: airCommonTypes.MarketingCabinType   
+      BookingClassAvail:
+        description: "Booking codes available to be sold for a particular flight segment."
+        type: array
+        minItems: 0
+        maxItems: 99
+        items: BookingClassAvail_BookingClassAvailabilityGroup
+      StopLocation:
+        description: "A location where the flight is scheduled to stop en route to its destination for this flight segment."
+        type: array
+        minItems: 0
+        maxItems: 9
+        items: commonTypes.LocationGroup
+      JourneyDuration:
+        description: "The duration of the flight from departure location to destination location."
+        type: string
+        pattern: -?P[0-9]+Y?([0-9]+M)?([0-9]+D)?(T([0-9]+H)?([0-9]+M)?([0-9]+(\.[0-9]+)?S)?)?
+        required: false
+      OnTimeRate:
+        description: "Specifies the Dept. of Transport on time rate of the  flight."
+        type: simpleTypes.Percentage
+        required: false
+      Ticket:
+        description: "Specifies if the flight is e-ticketable or not."
+        type: simpleTypes.TicketType
+        required: false
+      ParticipationLevelCode:
+        description: "To specify the level of participation by a vendor in another system. Refer to OpenTravel Code List 'Participation Level Code' (PLC)."
+        type: simpleTypes.OTA_CodeType
+        required: false
+      GroundDuration:
+        description: "The duration of a ground stop."
+        type: string
+        pattern: -?P[0-9]+Y?([0-9]+M)?([0-9]+D)?(T([0-9]+H)?([0-9]+M)?([0-9]+(\.[0-9]+)?S)?)?
+        required: false
+      AccumulatedDuration:
+        description: "The total duration time of the flight. This is the combination of both JourneyDuration and GroundDuration."
+        type: string
+        pattern: -?P[0-9]+Y?([0-9]+M)?([0-9]+D)?(T([0-9]+H)?([0-9]+M)?([0-9]+(\.[0-9]+)?S)?)?
+        required: false
+      Distance:
+        description: "Miles acquired per flight segment, usually used for earning of frequent flyer miles."
+        type: integer
+        minimum: 0
+        required: false
+      CodeshareInd:
+        description: "When true, this flight is a codeshare flight."
+        type: boolean
+        required: false
+      FlifoInd:
+        description: "When true, FLIFO information exists for this flight."
+        type: boolean
+        required: false
+      DateChangeNbr:
+        description: "When present, contains the number of days by which the flight's arrival date differs from its departure date (e.g., +1, -1)."
+        type: string
+        required: false
+      SequenceNumber:
+        description: "The sequence number of this flight segment with respect to all flight segments returned in the response."
+        type: simpleTypes.Numeric1to999
+        required: false
+      OptionalServicesInd:
+        description: "When true, optional services are available for this flight."
+        type: boolean
+        required: false
+  OriginDestinationInformation_OriginDestinationInformationType:
+    type: commonTypes.OriginDestinationInformationType
+    required: true
+    properties:
+      OriginDestinationOptions:
+        description: "A container for origin destination option information."
+        type: object
+        required: true
+        properties:
+          OriginDestinationOption:
+            description: "Holds the collection of flight options for this origin-destination pair.  There maybe limits imposed by individual supplier that are below the maximum occurrences for this element."
+            type: array
+            maxItems: 999
+            items:
+              properties:
+                FlightSegment:
+                  description: "Details of the flight option for an origin destination pair."
+                  type: array
+                  maxItems: 8
+                  items: FlightSegment_SmokingIndicatorGroup
+      SameAirportInd:
+        description: "If true, the return departure must be from the same airport as the outbound arrival."
+        type: boolean
+        required: false    
+      RPH:
+        description: "Uniquely identifies this origin destination information."
+        type: simpleTypes.RPH_Type   
+        required: false              
+  OTA_AirAvailRS:
+    description: "The Availability Response message contains Flight Availability for a city pair on a specific date. A set of OriginDestinationOptions is returned, each of which contains one or more (connecting) flights that serve the city pair. For each flight the following information is returned- Origin and destination airports, Departure and arrival date/times, Booking Class availability, Equipment, Meal Information and Codeshare information. This message contains similar information to a standard airline CRS or GDS availability response message."
+    type: object
+    required: false
+    properties: 
+      Content:
+        description: "OTA_PayloadStdAttributes"
+        type: commonTypes.OTA_PayloadStdAttributes
+        required: true
+      Warnings:
+        description: "Warnings"
+        type: commonTypes.WarningsType
+        required: false
+      OriginDestinationInformation:
+        description: 
+        type: array
+        minItems: 0
+        maxItems: 99
+        items: OriginDestinationInformation_OriginDestinationInformationType
+      Comment:
+        description: "Information that may apply to the entire response, such as marketing or header information."
+        type: commonTypes.FreeTextType
+        required: false
+# Do not need error or success
+#      Errors:
+#        description: "Errors"
+#        type: commonTypes.ErrorsType
+#        required: true
+#      Success:
+#        description: "Success"
+#        type: commonTypes.SuccessType
+#        required: true

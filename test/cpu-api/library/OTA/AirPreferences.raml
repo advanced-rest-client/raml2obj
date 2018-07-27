@@ -1,0 +1,522 @@
+#%RAML 1.0 Library
+
+usage: AirPreferences
+
+uses:
+  airCommonTypes: AirCommonTypes.raml
+  commonPrefs: CommonPrefs.raml
+  commonTypes: CommonTypes.raml
+  simpleTypes: SimpleTypes.raml
+  lists: Lists.raml
+
+types:
+  TourCodeInfo:
+    description: "Provides the tour code."
+    type: object
+    required: false
+    properties: 
+      Content:
+        type: commonTypes.PromotionCodeGroup
+        description: "commonTypes.PromotionCodeGroup"
+        required: false
+      TourTypeCode:
+        description: "Type of tour (e.g., IT=inclusive Tour, BT= Bulk Tour, NR=Net Remit)."
+        type: simpleTypes.StringLength1to8
+        required: false
+      YearNum:
+        description: "Last digit of the year of the tour code creation."
+        type: integer
+        minimum: 0
+        maximum: 9
+        required: false
+      PartyID:
+        description: "Identifier assigned to a tour group by the airline."
+        type: simpleTypes.StringLength1to8
+        required: false
+  StaffTourCodeInfo:
+    description: "Provides a tour code for airline staff."
+    type: object
+    required: false
+    properties: 
+      StaffType:
+        description: "Defines the type of staff covered by the TourCode."
+        enum: ['Current','Duty','CabinCrew','Retired','TechCrew','UnaccompaniedFamilyMember','OtherAirlinePersonnel']
+        required: false
+      EmployeeID:
+        description: "Identifier of the staff member."
+        type: simpleTypes.StringLength1to16
+        required: false
+      VendorCode:
+        description: "The airline to which the EmployeeID is associated."
+        type: simpleTypes.StringLength1to8
+        required: false
+      Description:
+        description: "Description of the staff tour code."
+        type: simpleTypes.StringLength1to128
+        required: false
+  FareAccessPrefType:
+    description: "Fare calculation type (e.g. PointToPoint, Through, Joint, Private.)"
+    enum: ['PointToPoint','Through','Joint','Private','Negotiated','Net','Historical','SecurateAir','Moneysaver','MoneysaverRoundtrip','MoneysaverNoOneWay','MoneysaverOneWayOnly']
+  CabinPrefGroup:
+    description: "Indicates preferences for choice of airline cabin."
+    type: commonTypes.PreferLevelGroup
+    required: false
+    properties: 
+      Cabin:
+        description: "Indicates preferred airline cabin."
+        type: simpleTypes.CabinType
+        required: false
+  FlightTypePrefGroup:
+    description: "Indicates preferences for certain types of flights, such as connections or stopovers, when used for a specific travel situation."
+    type: commonTypes.PreferLevelGroup
+    required: false
+    properties: 
+      FlightType:
+        description: "Indicates type of stops preferred (Nonstop, Direct, Connection)."
+        type: simpleTypes.FlightTypeType
+        required: false
+      MaxConnections:
+        description: "Indicates that if connection is chosen, then this attribute defines the maximum number of connections preferred."
+        type: integer
+        minimum: 0
+        required: false
+      NonScheduledFltInfo:
+        description: "To specify which types of non-scheduled air service should be included."
+        enum: ['ChartersOnly','ExcludeCharters','All']
+        required: false
+      BackhaulIndicator:
+        description: "If true, include connections where one of the enroute stops is the same as the initial board point or the final off point of the flight."
+        type: boolean
+        required: false
+      GroundTransportIndicator:
+        description: "If true, include flights that include at least one leg that is ground transportation."
+        type: boolean
+        required: false
+      DirectAndNonStopOnlyInd:
+        description: "If true, direct and non-stop flights are requested."
+        type: boolean
+        required: false
+      NonStopsOnlyInd:
+        description: "If true, only non-stop flights are requested."
+        type: boolean
+        required: false
+      OnlineConnectionsOnlyInd:
+        description: "If true, only online connection flights are requested (i.e., same marketing airline)."
+        type: boolean
+        required: false
+      RoutingType:
+        description: "Specifies the travel routing preference."
+        enum: ['Normal','Mirror']
+        required: false
+      ExcludeTrainInd:
+        description: "When true, exclude connections that include travel by train for one of the legs."
+        type: boolean
+        required: false
+  SeatPrefGroup:
+    description: "Indicates preferences for seats or seat types."
+    type: [commonTypes.PreferLevelGroup, commonTypes.SeatRequestAttributes]
+    required: false
+  SSR_PrefGroup:
+    description: "Identifies preferences for special services required for air travel, using standard industry (SSR-OSI) code list."
+    type: commonTypes.PreferLevelGroup
+    required: false
+    properties: 
+      SSR_Code:
+        description: "Code of the special service request to be used for this air travel situation. Refers to standard industry code list."
+        type: simpleTypes.AlphaLength4
+        required: false
+  AirlinePrefType:
+    description: "Identifies a collection of preferences for airline travel."
+    type: [commonTypes.PrivacyGroup, commonTypes.PreferLevelGroup, commonTypes.SmokingIndicatorGroup]
+    required: false
+    properties: 
+      LoyaltyPref:
+        description: "Identifies the preferred loyalty program(s)."
+        type: commonPrefs.LoyaltyPrefType[]
+        minItems: 0
+      VendorPref:
+        description: "Identifies the preferred airline carrier(s) by name."
+        type: commonPrefs.CompanyNamePrefType[]
+        minItems: 0
+        items: 
+          properties: 
+            RPH:
+              description: "A reference pointer used to identify an airline vendor."
+              type: simpleTypes.RPH_Type
+              required: false
+      PaymentFormPref:
+        description: "Preferred form(s) of payment."
+        type: commonPrefs.PaymentFormPrefType[]
+        minItems: 0
+      AirportOriginPref:
+        description: "Identifies the preferred origination airport for travel (using IATA airport codes)."
+        type: AirportPrefType[]
+        minItems: 0
+      AirportDestinationPref:
+        description: "Identifies the preferred destination airport for travel (using IATA airport codes)."
+        type: AirportPrefType
+        required: false
+      AirportRoutePref:
+        description: "Indicates the preferred connection airport(s) (using IATA airport codes).."
+        type: AirportPrefType[]
+        minItems: 0
+      FareRestrictPref:
+        description: "Indicates preferred fare restrictions to be used in search."
+        type: airCommonTypes.FareRestrictPrefGroup[]
+        minItems: 0
+      FarePref:
+        description: "Indicates preferred fare."
+        type: object[]
+        minItems: 0
+        maxItems: 99
+        items: 
+          properties: 
+            Code:
+              description: "Code indicating the type of fare preference (e.g., FM=commission, FD=fare discount)."
+              type: simpleTypes.StringLength1to8
+              required: false
+            Description:
+              description: "Free text describing the fare preference."
+              type: simpleTypes.StringLength1to128
+              required: false
+            AirlineVendorPrefRPH:
+              description: "Reference to one or more airlines in AirlinePrefType/VendorPref."
+              type: simpleTypes.ListOfRPH
+              required: false
+            RateCategoryCode:
+              description: "Provides a rate category for the fare preference. Refer to OpenTravel code list Rate Category (RTC)."
+              type: simpleTypes.OTA_CodeType
+              required: false
+            TransferAction:
+              description: "Indicates under what conditions this element will be transfered to the booking."
+              type: simpleTypes.TransferActionType
+              required: false
+      TourCodePref:
+        description: "Provides the contract code for a negotiated fare."
+        type: (TourCodeInfo | StaffTourCodeInfo)[]
+        minItems: 0
+        items: 
+          properties: 
+            PassengerTypeCode:
+              description: "Code used to indicate the type of traveler (e.g., ADT, CHD, INF, GRP)."
+              type: simpleTypes.AlphaLength3
+              required: false
+            AirlineVendorPrefRPH:
+              description: "Reference to one or more airlines in AirlinePrefType/VendorPref."
+              type: simpleTypes.ListOfRPH
+              required: false
+            TransferAction:
+              description: "Indicates under what conditions this element will be transfered to the booking."
+              type: simpleTypes.TransferActionType
+              required: false
+      FlightTypePref:
+        description: "Indicates preferred flight characteristics to be used in a search (e.g., connections, stopovers)."
+        type: FlightTypePrefGroup[]
+        minItems: 0
+      EquipPref:
+        description: "Indicates preferred equipment type(s) to be used in a search."
+        type: EquipmentTypePref[]
+        minItems: 0
+      CabinPref:
+        description: "Indicates preferred cabin(s) to be used in a search."
+        type: CabinPrefGroup[]
+        minItems: 0
+      SeatPref:
+        description: "Indicates preferred seat characteristics. Refer to OpenTravel Code List Seat Preference (STP) for codes."
+        type: SeatPrefGroup[]
+        minItems: 0
+        items: 
+          properties: 
+            FlightDistanceQualifier:
+              description: "Used to distingish a flight as long haul or short haul."
+              enum: ['LongHaul','ShortHaul']
+              required: false
+            InternationalIndicator:
+              description: "When true, indicates an international flight."
+              type: boolean
+              required: false
+            AirlineVendorPrefRPH:
+              description: "Reference to one or more airlines in VendorPref."
+              type: simpleTypes.ListOfRPH
+              required: false
+            PassengerTypeCode:
+              description: "Code used to indicate the type of traveler (e.g., ADT, CHD, INF, GRP)."
+              type: simpleTypes.AlphaLength3
+              required: false
+            TransferAction:
+              description: "Indicates under what conditions this element will be transfered to the booking."
+              type: simpleTypes.TransferActionType
+              required: false
+      TicketDistribPref:
+        description: "Indicates preferred ticket distribution method (e.g., fax, eMail, courier, mail, airport pickup)"
+        type: commonPrefs.TicketDistribPrefType[]
+        minItems: 0
+      MealPref:
+        description: "Indicates preferred meal type (e.g., vegetarian, Kosher, low fat)"
+        type: commonPrefs.MealPrefType[]
+        minItems: 0
+      SpecRequestPref:
+        description: "Indicates preferred special request(s) to be used with this collection of preferences."
+        type: commonPrefs.SpecRequestPrefType[]
+        minItems: 0
+      SSR_Pref:
+        description: "Indicates Special Service Request preference type."
+        type: SSR_PrefGroup[]
+        minItems: 0
+        items: 
+          properties: 
+            VendorCode:
+              description: "Indicates to which airline the element is associated."
+              type: simpleTypes.StringLength1to8
+              required: false
+            NumberInParty:
+              description: "Number of passengers that will benefit from the request."
+              type: integer
+              minimum: 1
+              required: false
+            DefaultStatusCode:
+              description: "The default status from the airline. Refer to the OpenTravel Code List named Status (STS)."
+              type: simpleTypes.OTA_CodeType
+              required: false
+            Remark:
+              description: "Text that description of the service request."
+              type: simpleTypes.StringLength1to128
+              required: false
+            LookupKey:
+              description: "Database key to retrieve the other part of the card number."
+              type: simpleTypes.StringLength1to64
+              required: false
+            AirlineVendorPrefRPH:
+              description: "Reference to one or more airlines in VendorPref."
+              type: simpleTypes.ListOfRPH
+              required: false
+            TransferActionType:
+              description: "Indicates in what condition the element must be transferred to the booking."
+              type: simpleTypes.TransferActionType
+              required: false
+        # TPA_Extensions by passed
+      MediaEntertainPref:
+        description: "Media and entertainment preferences."
+        type: commonPrefs.MediaEntertainPrefType[]
+        minItems: 0
+      PetInfoPref:
+        description: "Indicates preferred information for pet accompanying traveler."
+        type: commonPrefs.PetInfoPrefType[]
+        minItems: 0
+      AccountInformation:
+        description: "Information related to back office accounting information for the travel agency."
+        type: object
+        required: false
+        properties: 
+          TaxRegistrationDetails:
+            description: "Ticketing Goods and Services Tax (GST) details (typically the Australian market)."
+            type: object
+            required: false
+            properties: 
+              TaxID:
+                description: "The tax registration identifier e.g., Australian Business Number (ABN)."
+                type: simpleTypes.StringLength1to16
+                required: false
+              RecipientName:
+                description: "The recipient's name."
+                type: simpleTypes.StringLength1to32
+                required: false
+              RecipientAddress:
+                description: "Free text for the recipient's address."
+                type: simpleTypes.StringLength1to64
+                required: false
+          Number:
+            description: "Ticketing account number."
+            type: simpleTypes.StringLength0to32
+            required: false
+          CostCenter:
+            description: "Ticketing cost center."
+            type: simpleTypes.StringLength0to64
+            required: false
+          CompanyNumber:
+            description: "Ticketing company number."
+            type: simpleTypes.StringLength0to32
+            required: false
+          ClientReference:
+            description: "Ticketing client reference."
+            type: simpleTypes.StringLength0to64
+            required: false
+      OSI_Pref:
+        description: "Other Service Information of the airline."
+        type: airCommonTypes.OtherServiceInfoType[]
+        minItems: 0
+        maxItems: 99
+      KeywordPref:
+        description: "This element stores data about an airline marketing keyword."
+        type: object[]
+        minItems: 0
+        maxItems: 99
+        items: 
+          properties: 
+            VendorCode:
+              description: "Indicates to which airline the element is associated."
+              type: simpleTypes.StringLength0to32
+              required: false
+            Description:
+              description: "Text of the Keyword element."
+              type: simpleTypes.StringLength0to128
+              required: false
+            Keyword:
+              description: "The keyword is defined by the airline."
+              type: simpleTypes.StringLength1to16
+              required: false
+            StatusCode:
+              description: "Confirmation status from the airline. Refer to OpenTravel code list Status (STS)."
+              type: simpleTypes.OTA_CodeType
+              required: false
+            NumberInParty:
+              description: "Number of passengers that will benefit from the request."
+              type: integer
+              minimum: 1
+              required: false
+            AirlineVendorRPH:
+              type: simpleTypes.ListOfRPH
+              required: false
+            TransferAction:
+              type: simpleTypes.TransferActionType
+              required: false
+      PassengerTypeCode:
+        description: "Category of airline passenger, using standard ATPCO codes."
+        type: simpleTypes.AlphaLength3
+        required: false
+      AirTicketType:
+        description: "Type of airline ticket preferred for this collection."
+        type: simpleTypes.TicketType
+        required: false
+  AirportPrefType:
+    description: "Departure airport preferences, using IATA airport codes."
+    type: [commonTypes.PreferLevelGroup, commonTypes.LocationType]
+    required: false
+  AirSearchPrefsType:
+    description: "Defines user preferences to be used in conducting a search."
+    type: [commonTypes.SmokingIndicatorGroup, commonTypes.DateTimeSpanGroup]
+    required: false
+    properties: 
+      VendorPref:
+        description: "Specify vendors to include and exclude from the response."
+        type: commonPrefs.CompanyNamePrefType[]
+        minItems: 0
+        maxItems: 99
+        items: 
+          properties: 
+            AllianceAllowedInd:
+              description: "When true, flights for other airlines in an alliance with the specified carrier code may be returned."
+              type: boolean
+              required: false
+            LoyaltyAllowedInd:
+              description: "When true, flights for other airlines in a loyalty program with the specified  carrier code may be returned."
+              type: boolean
+              required: false
+            AwardOnlyFareInd:
+              description: "When true, only award fares should be returned for this airline."
+              type: boolean
+              required: false
+      FlightTypePref:
+        description: "Defines preferred flight characteristics to be used in a search."
+        type: FlightTypePrefGroup[]
+        minItems: 0
+        maxItems: 3
+      FareRestrictPref:
+        description: "Constrains a fare search to those with restrictions that satisfy user-imposed limitations."
+        type: object[]
+        minItems: 0
+        maxItems: 4
+        items: 
+          properties: 
+            Content:
+              type: airCommonTypes.FareRestrictPrefGroup
+              description: "airCommonTypes.FareRestrictPrefGroup"
+              required: false
+            AdvResTicketing:
+              description: "Identifies whether advance reservation or ticketing restrictions are acceptable in the search results."
+              type: airCommonTypes.AdvResTicketingType
+              required: false
+            StayRestrictions:
+              description: "Identifies whether restrictions on minimum or maximum stays should be included in the search results."
+              type: airCommonTypes.StayRestrictionsType
+              required: false
+            VoluntaryChanges:
+              description: "Identifies whether penalties associated with voluntary changes should be included in the search results."
+              type: airCommonTypes.VoluntaryChangesType
+              required: false
+            FareDisplayCurrency:
+              description: "Currency in which fare display is requested."
+              type: simpleTypes.AlphaLength3
+              required: false
+            CurrencyOverride:
+              description: "Display fare published in other than local selling currency only."
+              type: simpleTypes.AlphaLength3
+              required: false
+      EquipPref:
+        description: "Defines preferred equipment profile(s) to be used in a search."
+        type: EquipmentTypePref[]
+        minItems: 0
+        maxItems: 9
+      CabinPref:
+        description: "Defines preferred  cabin(s) to be used in a search."
+        type: CabinPrefGroup[]
+        minItems: 0
+        maxItems: 3
+        items: 
+          properties: 
+            CabinSubtype:
+              description: "Defines a specific cabin sub type within the cabin type (i.e., first, business, economy.)  For example, Premium."
+              type: simpleTypes.StringLength1to64
+              required: false
+      TicketDistribPref:
+        description: "Defines Distribution prefernces."
+        type: object[]
+        minItems: 0
+        maxItems: 3
+        items: 
+          properties: 
+            Content:
+              type: commonPrefs.TicketDistribPrefType
+              description: "commonPrefs.TicketDistribPrefType"
+              required: false
+            LastTicketDate:
+              type: datetime
+              required: false
+            FirstTicketDate:
+              type: datetime
+              required: false
+      BookingSeatPref:
+        description: "The booking class seat preferences."
+        type: object
+        required: false
+        properties: 
+          Content:
+            type: airCommonTypes.BookingClassPrefOptionalGroup
+            description: "airCommonTypes.BookingClassPrefOptionalGroup"
+            required: false
+          SeatsNeeded:
+            description: "The number of seats needed for the designated booking class."
+            type: integer
+            minimum: 0
+            required: false
+      OnTimeRate:
+        description: "Request for flights in response that meet the given Department of Transport on-time rate. This is a number between 0 and 100."
+        type: simpleTypes.Percentage
+        required: false
+      ETicketDesired:
+        description: "Request flights that are e-ticketable in the response. "
+        type: boolean
+        required: false
+      MaxStopsQuantity:
+        description: "Request flights that have no more than the requested number of stops."
+        type: simpleTypes.Numeric0to4
+        required: false
+  EquipmentTypePref:
+    description: "Indicates preferences for type of airplane."
+    type: [commonTypes.PreferLevelGroup, commonTypes.EquipmentType]
+    required: false
+    properties: 
+      WideBody:
+        description: "Indicates if an airplane with multiple aisles is preferred."
+        type: boolean
+        required: false

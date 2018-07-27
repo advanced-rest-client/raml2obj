@@ -1,0 +1,117 @@
+#%RAML 1.0 Library
+
+usage: AirLowFareSearchRQ
+
+uses:
+  airCommonTypes: ../../library/OTA/AirCommonTypes.raml
+  airPreferences: ../../library/OTA/AirPreferences.raml
+  commonTypes: ../../library/OTA/CommonTypes.raml
+  simpleTypes: ../../library/OTA/SimpleTypes.raml
+
+types:
+  OriginDestinationInformationType_DestInfoType:
+    type: commonTypes.OriginDestinationInformationType
+    properties: 
+      AlternateLocationInfo:
+        description: "Specifies alternate location(s) for the origin and/or destination."
+        type: object
+        required: false
+        properties: 
+          OriginLocation:
+            description: "Specifies alternate airport/city codes for the origin location."
+            type: simpleTypes.ListOfStringLength1to8
+            required: false
+          DestinationLocation:
+            description: "Specifies alternate airport/city codes for the destination location."
+            type: simpleTypes.ListOfStringLength1to8
+            required: false
+        # TPA_Extensions by passed
+      RPH:
+        description: "A unique reference to this origin destination information."
+        type: simpleTypes.RPH_Type
+        required: false
+      RefNumber:
+        description: "A unique reference to this origin destination information to be referenced within the OTA_AirLowFareSearchRS message."
+        type: simpleTypes.Numeric1to99
+        required: false
+  TravelPreferences_AirSearchPrefsType:
+    type: airPreferences.AirSearchPrefsType
+    properties: 
+      FlexDatePref:
+        description: "To specify which portions of the journey the date is flexible."
+        enum: ['Outbound','Return','Both']
+        required: false
+      FlexWeekendIndicator:
+        description: "If true, days before or after the weekend day should be searched."
+        type: boolean
+        required: false
+      FlexLevelIndicator:
+        description: "If true, eligible for widest flex searches."
+        type: boolean
+        required: false
+      NoFareBreakIndicator:
+        description: "If true, no fare breaks in the itinerary apart from the turn point should be considered."
+        type: boolean
+        required: false
+      OriginDestinationRPHs:
+        description: "Refers to specific origin destination information within this request message."
+        type: simpleTypes.ListOfRPH
+        required: false
+  OTA_AirLowFareSearchRQ:
+    description: "The Low Fare Search Request message requests priced itinerary options for flights between specific city pairs on specific dates for specific numbers and types of passengers. Optional request information can include- Time / Time Window; Connecting cities; and Client Preferences (airlines, cabin, flight types etc.) The Low Fare Search request contains similar information to a Low Fare Search entry on an airline CRS or GDS."
+    type: [commonTypes.OTA_PayloadStdAttributes, commonTypes.MaxResponsesGroup]
+    required: false
+    properties: 
+      POS:
+        description: "Point of sale object."
+        type: commonTypes.POS_Type
+        required: true
+      ProcessingInfo:
+        description: "A collection of information that specifies how the message processing should occur or how the data should be returned."
+        type: airCommonTypes.AirProcessingInfoGroup
+        required: false
+      MultimodalOffer:
+        description: "Multimodal offer influencers."
+        type: commonTypes.MultiModalOfferType
+        required: false
+      OriginDestinationInformationType:
+        description: "Origin and Destination location, and time information for the Air Low Fare Search request."
+        type: array
+        minItems: 1
+        maxItems: 10
+        items: OriginDestinationInformationType_DestInfoType
+      SpecificFlightInfo:
+        description: "Specify actual airline, flight number, or booking class to qualify the low fare search."
+        type: airCommonTypes.SpecificFlightInfoType
+        required: false
+      TravelPreferences:
+        description: "Air Low Fare Search Request preference information."
+        type: array
+        minItems: 0
+        maxItems: 10
+        items: TravelPreferences_AirSearchPrefsType
+      TravelerInfoSummary:
+        description: "Specify the number of passengers and types for Air Low Fare Search."
+        type: [object, airCommonTypes.TravelerInfoSummaryType]
+        required: true
+        properties: 
+          TicketingCountryCode:
+            description: "To specify the country code where ticketing of the reservation will take place."
+            type: simpleTypes.ISO3166
+            required: false
+          SpecificPTC_Indicator:
+            description: "If true, this request is for a specific PTC and only fares applicable to that PTC will be checked and returned."
+            type: boolean
+            required: false
+      ArrangerInfoSummary:
+        description: "Information about a person or entity associated with an air trip who will not be traveling. This is generally used to describe an individual or company paying for a ticket or making the travel plans."
+        type: airCommonTypes.AirArrangerType
+        required: false
+      DirectFlightsOnly:
+        description: "Request direct flights on between the given locations. "
+        type: boolean
+        required: false
+      AvailableFlightsOnly:
+        description: "Include only flights with available booking codes (when True or when attribute not present)."
+        type: boolean
+        required: false

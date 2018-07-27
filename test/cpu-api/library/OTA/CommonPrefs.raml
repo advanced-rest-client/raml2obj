@@ -1,0 +1,353 @@
+#%RAML 1.0 Library
+
+usage: CommonPrefs
+
+uses:
+  commonTypes: CommonTypes.raml
+  simpleTypes: SimpleTypes.raml
+  lists: Lists.raml
+
+types:
+  AddressPrefType:
+    description: "Identifies an address preference."
+    type: commonTypes.PrivacyGroup
+    required: false
+    properties:
+      Address:
+        description: "Defines a physical address."
+        type: commonTypes.AddressInfoType
+        required: false
+  CommonPrefType:
+    description: "Identifies preferences for common travel needs not associated with a specific travel service."
+    type: [commonTypes.PrivacyGroup, commonTypes.SmokingIndicatorGroup, commonTypes.PrimaryLangID_Group, commonTypes.AltLangID_Group]
+    required: false
+    properties:
+      NamePref:
+        description: "Enables a preference to be indicated for name information."
+        type: NamePrefType[]
+        minItems: 0
+      PhonePref:
+        description: "Enables a preference to be indicated for telephone information."
+        type: PhonePrefType[]
+        minItems: 0
+      AddressPref:
+        description: "Enables a preference to be indicated for address information."
+        type: AddressPrefType[]
+        minItems: 0
+      PaymentFormPref:
+        description: "Enables a preference to be indicated for form of payment."
+        type: PaymentFormPrefType[]
+        minItems: 0
+      InterestPref:
+        description: "Enables a preference to be indicated for a traveler's interests."
+        type: InterestPrefType[]
+        minItems: 0
+      InsurancePref:
+        description: "Enables a preference to be indicated for insurance."
+        type: InsurancePrefType[]
+        minItems: 0
+      SeatingPref:
+        description: "Enables a preference to be indicated for seating."
+        type: SeatingPrefType[]
+        minItems: 0
+      TicketDistribPref:
+        description: "Enables a preference to be indicated for a method of ticket distribution."
+        type: TicketDistribPrefType[]
+        minItems: 0
+      MediaEntertainPref:
+        description: "Enables a preference to be indicated for media and entertainment."
+        type: MediaEntertainPrefType[]
+        minItems: 0
+      PetInfoPref:
+        description: "Enables a preference to be indicated for pet information."
+        type: PetInfoPrefType[]
+        minItems: 0
+      MealPref:
+        description: "Enables a preference to be indicated for food and beverage."
+        type: MealPrefType[]
+        minItems: 0
+      LoyaltyPref:
+        description: "Enables a preference to be indicated for a loyalty program."
+        type: LoyaltyPrefType[]
+        minItems: 0
+      SpecRequestPref:
+        description: "Enables a preference to be indicated for a special request."
+        type: SpecRequestPrefType[]
+        minItems: 0
+      RelatedTravelerPref:
+        description: "Enables a preference to be indicated for a related traveler."
+        type: RelatedTravelerPrefType[]
+        minItems: 0
+      ContactPref:
+        description: "The traveller's preferred means of being contacted."
+        type: object[]
+        minItems: 0
+        maxItems: 99
+        items:
+          properties:
+            PreferLevel:
+              description: "Level of preference for this method of being contacted."
+              type: simpleTypes.PreferLevelType
+              required: false
+            ContactMethodCode:
+              description: "Method of contact. Refer to OpenTravel Code List DistributionType (DTB)."
+              type: simpleTypes.OTA_CodeType
+              required: false
+      EmployeeLevelInfo:
+        description: "Defines the category of the traveler and the purpose of the trip for which these preferences apply. Typically used for company profiles."
+        type: commonTypes.EmployeeInfoType
+        required: false
+        # TPA_Extensions by passed
+  CompanyNamePrefType:
+    description: "Identifies a preferred company by name."
+    type: [commonTypes.PreferLevelGroup, commonTypes.CompanyNameType]
+    required: false
+  InsurancePrefType:
+    description: "Identifies a preference for a travel insurance policy."
+    type: object
+    required: false
+    properties:
+      RPH:
+        description: "Index number to be used for reference the insurance policy to be used in this travel collection."
+        type: simpleTypes.RPH_Type
+        required: false
+      PreferLevelGroup:
+        description: "Used to specify the preference level for this insurance policy."
+        type: commonTypes.PreferLevelGroup
+        required: false
+      Content:
+        description: "Content type of InsurancePrefType"
+        type: simpleTypes.StringLength1to64
+        required: false
+  InterestPrefType:
+    description: "Identifies a preference for a traveler's interest."
+    type: object
+    required: false
+    properties:
+      Content:
+        description: "Content type of InterestPrefType"
+        type: simpleTypes.StringLength1to64
+        required: false
+      PreferLevelGroup:
+        description: "Used to specify the preference level for this insurance policy."
+        type: commonTypes.PreferLevelGroup
+        required: false
+  LoyaltyPrefType:
+    description: "Identifies a preference for a loyalty program."
+    type: object
+    required: false
+    properties:
+      RPH:
+        description: "Identification of loyalty program by reference number or index."
+        type: simpleTypes.RPH_Type
+        required: false
+      PreferLevelGroup:
+        description: "Used to specify the preference level for this loyalty program."
+        type: commonTypes.PreferLevelGroup
+        required: false
+      Content:
+        description: "Content type of LoyaltyPrefType"
+        type: simpleTypes.StringLength1to64
+        required: false
+  MealPrefType:
+    description: "Identifies a food and beverage preference."
+    type: object
+    required: false
+    properties:
+      MealType:
+        description: "Type of meal required (e.g.,vegetarian, Kosher, low fat, etc.)"
+        type: simpleTypes.MealType
+        required: false
+      FavoriteFood:
+        description: "Dining preferences used with this collection."
+        type: simpleTypes.StringLength1to64
+        required: false
+      Beverage:
+        description: "Type of drink(s) preferred."
+        type: simpleTypes.StringLength1to64
+        required: false
+      PreferLevelGroup:
+        description: "Used to specify the preference level for a meal type."
+        type: commonTypes.PreferLevelGroup
+        required: false
+      Content:
+        description: "Content type of MealPrefType"
+        type: simpleTypes.StringLength0to64
+        required: false
+  MediaEntertainPrefType:
+    description: "Media and entertainment information preferences."
+    type: object
+    required: false
+    properties:
+      PreferLevelGroup:
+        description: "Used to indicate a level of preference for media or entertainment."
+        type: commonTypes.PreferLevelGroup
+        required: false
+      Content:
+        description: "Content type of MediaEntertainPrefType"
+        type: simpleTypes.StringLength1to64
+        required: false
+  NamePrefType:
+    description: "Enables a preference to be indicated for name information."
+    type: commonTypes.PreferLevelGroup
+    required: false
+    properties:
+      UniqueID:
+        description: "Unique identifier for a person or profile."
+        type: commonTypes.UniqueID_Type
+        required: true
+      PersonName:
+        description: "Name information."
+        type: commonTypes.PersonNameType
+        required: true
+  OtherSrvcPrefType:
+    description: "Identifies other service preferences."
+    type: [commonTypes.PreferLevelGroup, commonTypes.PrivacyGroup]
+    required: false
+    properties:
+      OtherSrvcName:
+        description: "The name identfiying the service."
+        type: simpleTypes.StringLength1to32
+        required: true
+      VendorPref:
+        description: "Enables a preference to be indicated for a vendor."
+        type: CompanyNamePrefType[]
+        minItems: 0
+        maxItems: 5
+      LoyaltyPref:
+        description: "Enables a preference to be indicated for a loyalty program."
+        type: LoyaltyPrefType[]
+        minItems: 0
+        maxItems: 5
+      PaymentFormPref:
+        description: "Enables a preference to be indicated for a form of payment."
+        type: PaymentFormPrefType[]
+        minItems: 0
+        maxItems: 5
+      SpecRequestPref:
+        description: "Enables a preference to be indicated for a special request."
+        type: SpecRequestPrefType[]
+        minItems: 0
+        maxItems: 5
+        # TPA_Extensions by passed
+      TravelPurpose:
+        description: "Refer to OpenTravel Code List Travel Purpose (TVP)."
+        type: simpleTypes.OTA_CodeType
+        required: false
+  PaymentFormPrefType:
+    description: "Identifies a form of payment preference."
+    type: object
+    required: false
+    properties:
+      RPH:
+        description: "The unique reference for a payment form within this message."
+        type: simpleTypes.RPH_Type
+        required: false
+      PreferLevelGroup:
+        description: "Used to indicate a level of preference for a form of payment."
+        type: commonTypes.PreferLevelGroup
+        required: false
+      Content:
+        description: "Content type of PaymentFormPrefType"
+        type: simpleTypes.StringLength1to64
+        required: false
+  PetInfoPrefType:
+    description: "Indentifies preferences regarding a pet."
+    type: object
+    required: false
+    properties:
+      PreferLevelGroup:
+        description: "Used to indicate a level of preference for pet information."
+        type: commonTypes.PreferLevelGroup
+        required: false
+      Content:
+        description: "Content type of PetInfoPrefType"
+        type: simpleTypes.StringLength1to64
+        required: false
+  PhonePrefType:
+    description: "Identifies a telephone number preference."
+    type: object
+    required: false
+    properties:
+      Telephone:
+        description: "Identifies a telephone number."
+        type: commonTypes.TelephoneInfoGroup
+        required: true
+  RelatedTravelerPrefType:
+    description: "Identifies a preference for a name of a related traveler."
+    type: commonTypes.PreferLevelGroup
+    required: false
+    properties:
+      UniqueID:
+        description: "Unique identifier for a related traveler."
+        type: commonTypes.UniqueID_Type
+        required: true
+  SeatingPrefType:
+    description: "Identifies a seating preference."
+    type: object
+    required: false
+    properties:
+      SeatDirection:
+        description: "Direction seat faces during travel, when conveyance allows."
+        type: simpleTypes.StringLength1to16
+        required: false
+      SeatLocation:
+        description: "Location of seat in cabin of conveyance. Suggested values include- Forward, Middle, Aft, ExitRow, Bulkhead, Right or Left Side, etc."
+        type: string
+        required: false
+      SeatPosition:
+        description: "Preferred position of seat in a row, such as Aisle, Middle, Center, Window, etc."
+        type: string
+        required: false
+      SeatRow:
+        description: "Preferred row for seating, indicates specific row number and/or seat identifier."
+        type: string
+        required: false
+      PreferLevelGroup:
+        description: "Used to indicate a level of preference for seat information."
+        type: commonTypes.PreferLevelGroup
+        required: false
+      Content:
+        description: "Content type for SeatingPrefType"
+        type: simpleTypes.StringLength0to64
+        required: false
+  SpecRequestPrefType:
+    description: "Identifies special request preference."
+    type: object
+    required: false
+    properties:
+      PreferLevelGroup:
+        description: "Used to indicate a level of preference for a special request."
+        type: commonTypes.PreferLevelGroup
+        required: false
+      Content:
+        description: "Content type of SpecRequestPrefType"
+        type: simpleTypes.StringLength1to64
+        required: false
+  TicketDistribPrefType:
+    description: "Identifies a preference for a type of ticket distribution."
+    type: object
+    required: false
+    properties:
+      DistribType:
+        description: "Ticket distribution method such as Fax, Email, Courier, Mail, Airport_Pickup, City_Office, Hotel_Desk,
+ WillCall, etc. Refer to OpenTravel Code List Distribution Type (DTB)."
+        type: simpleTypes.OTA_CodeType
+        required: false
+      TicketTime:
+        description: "Ticket turnaround time desired, amount of time requested to deliver tickets."
+        type: string
+        pattern: -?P[0-9]+Y?([0-9]+M)?([0-9]+D)?(T([0-9]+H)?([0-9]+M)?([0-9]+(\.[0-9]+)?S)?)?
+        required: false
+      Remark:
+        description: "A remark associated with the ticket distribution preference."
+        type: simpleTypes.StringLength1to128
+        required: false
+      PreferLevelGroup:
+        description: "Used to indicate a level of preference for a method of ticket distribution."
+        type: commonTypes.PreferLevelGroup
+        required: false
+      Content:
+        description: "Content type of TicketDistribPrefType"
+        type: simpleTypes.StringLength0to64
+        required: false

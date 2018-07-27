@@ -1,0 +1,193 @@
+#%RAML 1.0 Library
+
+usage: AirFlifoRS
+
+uses:
+  airCommonTypes: ../../library/OTA/AirCommonTypes.raml
+  commonTypes: ../../library/OTA/CommonTypes.raml
+  simpleTypes: ../../library/OTA/SimpleTypes.raml
+
+types:
+  FlightLegInfo_Comment:
+    description: "FlightLegInfo_CommentType"
+    type: object
+    required: false
+    properties:
+      Content:
+        description: "Content of Free Text Type"
+        type: commonTypes.FreeTextType
+        required: true
+
+  FlightInfoDetails:
+    description: "Flight information for a flight number."
+    type: object
+    required: false
+    properties:
+      FlightLegInfo:
+        description: "Information regarding each leg of the flight. A flight leg is one departure and one arrival (non-stop sector)."
+        type: object[]
+        required: true
+        minItems: 1
+        maxItems: 10
+        items:
+          properties:
+            Content:
+              description: "Ref to FlifoLegAttributes"
+              type: airCommonTypes.FlifoLegAttributes
+              required: true
+            DepartureAirport:
+              description: "Departure airport for flight leg."
+              type: object
+              required: false
+              properties:
+                Content:
+                  description: "Airport location includes 3 letter code, terminal and gate."
+                  type: commonTypes.AirportLocationGroup
+                  required: false
+                Comment:
+                  description: "Any special comments about the departure airport"
+                  type: commonTypes.FreeTextType
+                  required: false
+                FlagStopInd:
+                  description: "If true, indicates a flag stop has occurred at this airport."
+                  type: boolean
+                  required: false
+            ArrivalAirport:
+              description: "Arrival point of flight segment. Additional occurrences indicates diversion airports and flag stops."
+              type: object[]
+              required: false
+              minItems: 0
+              maxItems: 9
+              items:
+                properties:
+                  Content:
+                    description: "Airport location includes 3 letter code, terminal and gate."
+                    type: commonTypes.AirportLocationGroup
+                    required: true
+                  Comment:
+                    description: "Any special comments about the departure airport"
+                    type: commonTypes.FreeTextType
+                    required: false
+                  Diversion:
+                    description: "Indicates the flight has diverted to this airport."
+                    type: simpleTypes.StringLength1to8
+                    required: true
+                  BaggageClaim:
+                    description: "Specifies the location or carousel number for baggage from the arriving flight."
+                    type: simpleTypes.StringLength1to8
+                    required: false
+                  FlagStopInd:
+                    description: "If true, indicates a flag stop has occurred at this airport."
+                    type: boolean
+                    required: false
+            MarketingAirline:
+              description: "The marketing airline."
+              type: commonTypes.CompanyNameType
+              required: true
+            OperatingAirline:
+              description: "The operating airline of the flight if it is a codeshare flight."
+              type: commonTypes.OperatingAirlineType
+              required: false
+            Equipment:
+              description: "The type of equipment used for the flight."
+              type: commonTypes.EquipmentType
+              required: false
+            Comment:
+              description: "Any special comments on the leg such as travel advisory messages, passenger advisory messages, etc."
+              type: array
+              minItems: 0
+              maxItems: 5  
+              items: FlightLegInfo_Comment
+            DepartureDateTime:  
+              description: "Specifies scheduled and other  date time information."
+              type: object
+              required: false
+              properties:
+                Scheduled:              
+                  description: "Scheduled departure date/time for flight leg."
+                  type: simpleTypes.TimeOrDateTimeType
+                  required: false
+                Estimated:
+                  description: "Estimated departure date/time for flight leg."
+                  type: simpleTypes.TimeOrDateTimeType
+                  required: false
+                Actual:
+                  description: "Actual operational departure date/time for flight leg."
+                  type: simpleTypes.TimeOrDateTimeType
+                  required: false
+                ReasonCode:
+                  description: "The reason attributed to a delay or cancellation. Refers to OpenTravel Code Table Flight Delay Code (FDC)."
+                  type: simpleTypes.OTA_CodeType
+                  required: false
+                NextAdvisoryTime:
+                  description: "Specifies the time when the next information will be published."
+                  type: simpleTypes.TimeOrDateTimeType
+                  required: false
+            ArrivalDateTime:
+              description: "Specifies scheduled and other date time information."
+              type: object
+              required: false
+              properties:
+                Scheduled:
+                  description: "Scheduled arrival date/time for flight leg"
+                  type: simpleTypes.TimeOrDateTimeType
+                  required: false
+                Estimated:
+                  description: "Estimated arrival date/time for flight leg."
+                  type: simpleTypes.TimeOrDateTimeType
+                  required: false
+                Actual:
+                  description: "Actual operational arrival date/time for flight leg."
+                  type: simpleTypes.TimeOrDateTimeType
+                  required: false
+                ReasonCode:
+                  description: "The reason attributed to a delay or cancellation. Refers to OpenTravel Code Table Flight Delay Code (FDC)."
+                  type: simpleTypes.OTA_CodeType
+                  required: false
+            OperationTimes:
+              description: "A collection of OperationTimes."
+              type: object
+              required: false
+              properties:
+                OperationTime:
+                  description: "Provides information on operational events for this flight leg e.g. off-ground."
+                  type: airCommonTypes.OperationTimeGroup[]
+                  minItems: 1
+                  maxItems: 99
+            FlightStatus:
+              description: "Status of the current flight operation."
+              type: simpleTypes.StringLength1to32
+              required: false
+            OnTimeRate:
+              description: "Specifies the Department of Transportation on time rate for the flight leg."
+              type: simpleTypes.Percentage
+              required: false
+  OTA_AirFlifoRS:
+    description: "Details of flight departure, arrival and gate information for a particular flight, including actual as well as scheduled departure and arrival times."
+    # type: ['OTA_PayloadStdAttributes', '(Errors | Success | Warnings | FlightInfoDetails)']
+    type: object
+    required: false
+    properties:
+      OTA_PayloadStdAttributes:
+        description: "Attributes from OTA_PayloadStdAttributes"
+        type: commonTypes.OTA_PayloadStdAttributes
+        required: false
+      Errors:
+        description: "Errors"
+        type: commonTypes.ErrorsType
+        required: true
+      Success:
+        description: "Success"
+        type: commonTypes.SuccessType
+        required: true
+      Warnings:
+        description: "Warnings"
+        type: commonTypes.WarningsType
+        required: false
+      FlightInfoDetails:
+        description: "Container for multiple returned FareDisplayInfo elements."
+        type: FlightInfoDetails[]
+        required: false
+        minItems: 0
+        maxItems: 999
+      

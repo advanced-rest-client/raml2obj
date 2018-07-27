@@ -1,0 +1,79 @@
+#%RAML 1.0 Library
+
+uses:
+  airPreferences: ../../library/OTA/AirPreferences.raml
+  airCommonTypes: ../../library/OTA/AirCommonTypes.raml
+  commonTypes: ../../library/OTA/CommonTypes.raml
+  simpleTypes: ../../library/OTA/SimpleTypes.raml
+
+types:
+  OriginDestinationInformation_OriginDestinationInformationType:
+    type: commonTypes.OriginDestinationInformationType
+    required: true
+    properties: 
+      SpecificFlightInfo:
+        description: "To specify a flight for this origin and destination for which availability is to be checked."
+        type: airCommonTypes.SpecificFlightInfoType
+        required: false
+        properties: 
+          PollingIndicator:
+            description: "Indicates if the actual inventory information needs to be returned for a specific flight."
+            type: boolean
+            required: false
+      TravelPreferences:
+        description: "Traveler preference information for this particular origin and destination."
+        type: airPreferences.AirSearchPrefsType
+        required: false
+      SameAirportInd:
+        description: "If true, the return departure must be from the same airport as the outbound arrival."
+        type: boolean
+        required: false
+      RPH:
+        description: "Uniquely identifies this origin destination information."
+        type: simpleTypes.RPH_Type
+        required: false   
+  OTA_AirAvailRQ:
+    description: "The Availability Request message requests Flight Availability for a city pair on a specific date for a specific number and type of passengers. Optional request information can include-Time / Time Window, Connecting cities, Client Preferences (airlines, cabin, flight types etc.) The request can be narrowed to request availability for a specific airline, specific flight, or specific booking class on a specific flight. The availability request message contains similar information to a standard Airline CRS or GDS availability request message."
+    type: ['commonTypes.OTA_PayloadStdAttributes', 'commonTypes.MaxResponsesGroup', 'airCommonTypes.DirectAndStopsGroup']
+    required: false
+    properties: 
+      POS:
+        description: "Point of sale object."
+        type: commonTypes.POS_Type
+        required: false
+      ProcessingInfo:
+        description: "A collection of information that specifies how the message processing should occur or how the data should be returned."
+        type: airCommonTypes.AirProcessingInfoGroup
+        required: false
+      MultimodalOffer:
+        description: "Multimodal offer influencers."
+        type: commonTypes.MultiModalOfferType
+        required: false     
+      OriginDestinationInformation:
+        description: "Information on the locations between which availability is to be checked."
+        type: array
+        minItems: 0
+        maxItems: 99
+        items: OriginDestinationInformation_OriginDestinationInformationType
+      SpecificFlightInfo:
+        description: "Information used to specify a flight for which availability is to be checked."
+        type: airCommonTypes.SpecificFlightInfoType
+        required: false
+      TravelPreferences:
+        description: "Air Availability Request preference information."
+        type: airPreferences.AirSearchPrefsType
+        required: false
+      TravelerInfoSummary:
+        description: "Used to specify passenger and fare information for which availability is to be checked."
+        type: airCommonTypes.TravelerInfoSummaryType
+        required: false
+      BookedFlightSegment:
+        description: "The flight segment information contained in the passenger's current booking."
+        type: array
+        minItems: 0
+        maxItems: 99
+        items: airCommonTypes.BookFlightSegmentType
+      Offer:
+        description: "Merchandising offers associated with the fare or traveler."
+        type: airCommonTypes.AirOfferChoiceType
+        required: false

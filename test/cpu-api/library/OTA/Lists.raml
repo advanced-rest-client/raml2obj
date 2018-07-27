@@ -1,0 +1,953 @@
+#%RAML 1.0 Library
+types:
+  Summary:
+    description: "Summary code information."
+    type: CodeListSummaryExtension
+    required: false
+  Detail:
+    description: "Detail code information."
+    type: CodeListDetailExtension
+    required: false
+  Currency:
+    description: "Money amount and currency encoding information."
+    type: object
+    required: false
+    properties: 
+      Amount:
+        description: "Fee or tax monetary amount. Example- 2500 OpenTravel Best Practice for Money Amount Designation- Unless otherwise noted, all money amounts will contain the amount as a positive integer and currency designation. The decimal places (minor unit) should contain the number of decimal places associated with the amount. Example- 8500, USD, 2 represents $85.00USD. "
+        type: number
+        required: true
+      CurrencyCode:
+        description: "Currency code. Example- USD OpenTravel Best Practice for Currency Type Designation- Unless otherwise noted, all currency code designations are three alpha characters and WILL follow ISO 4217 prescribed format. Additionally, all currency amounts SHOULD have an ISO 4217 standard decimal places (minor units) specified. Reference- http-//www.iso.org/iso/home.htm "
+        type: string
+        pattern: ^[a-zA-Z]{3}$
+        required: false
+      DecimalPlaces:
+        description: "Currency code decimal places. The ISO 4217 standard \"minor unit\" is typically used when the amount provided includes the minor unit of currency without a decimal point (e.g., USD 8500 needs DecimalPlaces=\"2\" to represent $85). "
+        type: integer
+        minimum: 0
+        required: false
+  AlternateCurrency:
+    description: "Alternate currency information."
+    type: List_LoyaltyPrgCurrency
+    required: false
+    properties: 
+      Quantity:
+        description: "Redemption unit quantity. Example- 50000 Note- This is the quantity of the specified loyalty currency unit required for payment of this fee. "
+        type: integer
+        minimum: 1
+        required: true
+  Percent:
+    description: "Fee percentage. Example- 6.25 Note- This is a percentage of another amount that this fee or tax is based on. "
+    type: number
+    minimum: 0.00
+    maximum: 100.00
+  CodeListSchedulePeriodType:
+    description: "Operating schedule date, time or date/ time."
+    type: (date-only | datetime | time-only)
+    required: false
+  List_AdditionalOperationInfo_Base:
+    description: "An open list of hours of operation details. Source- Additional Operation Info (OPR) OpenTravel codelist. "
+    enum: ['AfterHoursAvailable','AfterHoursConditional','AfterHoursPickups','AfterHoursReturns','LimitedAvailability','Other_']
+  List_AgeCategory_Base:
+    description: "An open list of person age categories. Source- Age Qualifying Code (AQC) OpenTravel codelist filtered. "
+    enum: ['Adult','Child','Infant','Junior','Over21','Over65','Senior','Student','Teenager','Under10','Under12','Under17','Under2','Under21','Unknown','Other_']
+  List_AirFareDateType_Base:
+    description: "An open list of air fare applicable date types. Source- OpenTravel "
+    enum: ['DiscontinueTravel','EffectiveTravel','FirstTicketing','Historic','LastTicketing','TravelCompletion','Other_']
+  List_AirTripType_Base:
+    description: "An open list of air trip types. Source- OpenTravel. "
+    enum: ['Circle','Inbound','NonDirectional','OneWay','OneWayOnly','OpenJaw','Outbound','OutboundSeasonRoundtrip','Return','Roundtrip','Other_']
+  List_ApplyToLevel_Base:
+    description: "An open list of levels that a code item applies to. Source- Age Qualifying Code (AQC) OpenTravel codelist filtered. "
+    enum: ['Cabin','Facility','GuestRoom','MeetingRoom','Property','Seat','Ship','Unit','Other_']
+  List_BankAccountType_Base:
+    description: "An open list of bank account types. Source- OpenTravel "
+    enum: ['Checking','Investment','Savings','Other_']
+  List_CabinClass_Base:
+    description: "An open list of cabin types. Source- OpenTravel "
+    enum: ['Business','Cockpit','Economy','First','PremiumBusiness','PremiumEconomy','Suite','Other_']
+  List_ChargeFrequency_Base:
+    description: "An open list of charge units. Source- Charge Type (CHG) OpenTravel codelist. "
+    enum: ['Daily','FirstUse','HalfDay','Hourly','Night','Minute','Occurrence','PerDozen','Stay','Weekly','Other_','']
+  List_ChargeUnit_Base:
+    description: "An open list of charge types and units. Source- Charge Type (CHG) OpenTravel codelist. "
+    enum: ['AdditionsPerStay','Complimentary','Event','Gallon','Item','MaximumCharge','MinimumCharge','OneTimeUse','OneWay','Order','OverMinuteCharge','Person','Rental','Reservation/Booking','Room','Stay','Tray','Unit','Other_']
+  List_DataActionType_Base:
+    description: "An open list of actions to apply to specified data. Source- OpenTravel. "
+    enum: ['Create/Add','Read/Query','Update/Modify','Cancel','Delete','Replace','Other_']
+  List_FareStatus_Base:
+    description: "An open list of fare construction, creation and publishing methods. Source- OpenTravel. "
+    enum: ['Constructed','Created','FareByRule','FareByRulePrivate','Published','Other_']
+  List_FeeTaxType_Base:
+    description: "An open list of fee or tax types. Source- Fee Tax Type (FTT) OpenTravel codelist. "
+    enum: ['AdultRollawayFee','ApplicationFee','Assessment/LicenseTax','BanquetServiceFee','BedTax','ChildRollawayCharge','CityHotelFee','CityTax','ConventionTax','CountryTax','CountyTax','CribFee','EarlyCheckoutFee','EnergyTax','Exempt','ExpressHandlingFee','ExtraChildCharge','ExtraPersonCharge','FederalTax','FoodAndBeverageTax','FoodAndBeverageGratuity','GoodsAndServicesTax(GST)','InsurancePremiumTax','LocalFee','LodgingTax','MaintenanceFee','Miscellaneous','NationalGovernmentTax','NotKnown','OccupancyTax','PackageFee','PetSanitationFee','ResortFee','RollawayFee','RoomServiceFee','RoomTax','SalesTax','ServiceCharge','Standard','StateTax','Surcharge','SurplusLinesTax','TotalTax','TourismTax','ValueAddedTax(VAT)','VAT/GSTTax','Zero-Rated','Other_']
+  List_GlobalIndicatorType_Base:
+    description: "An open list of global travel areas. Source- OpenTravel. "
+    enum: ['AP','AT','CT','DO','EH','FE','PA','PN','PO','RU','RW','SA','TS','WH','Other_']
+  List_GolferType_Base:
+    description: "An open list of golfer types. Source- OpenTravel. "
+    enum: ['ClubMember','GuestOfMember','GuestOfResort','LocalResident','LoyaltyProgramMember','Other_']
+  List_GroundLocationType_Base:
+    description: "An open list of location types for ground transportation service. Source- OpenTravel. "
+    enum: ['Airport','City','Company','Hotel','PointOfInterest','Port','Region','HomeResidence','TrainStation','Vicinity','BusStation','Other_']
+  List_GroundServiceProvided_Base:
+    description: "An open list of ground transportation service types. Source- OpenTravel. "
+    enum: ['AirportTransfer','SharedTransportation','Hourly','Mileage','SimpleTransfer','Shuttle','Other_']
+  List_LevelOfService_Base:
+    description: "An open list of service level types. Source- Level of Service (LOS) OpenTravel codelist. "
+    enum: ['Deluxe','Economy','Exclusive','Executive','Luxury','Regular','Shuttle','VIP','Other_']
+  List_LoyaltyPrgCurrency_Base:
+    description: "An open list of loyalty program currencies. Source- OpenTravel. "
+    enum: ['Miles','Points','Stays','Voucher','Other_']
+  List_OfferAgeCategory:
+    description: "Person age categories for targeted offers. Source- Age Qualifying Code (AQC) OpenTravel codelist filtered. "
+    enum: ['Adult','Child','Infant','Over10','Over12','Over21','Over65','Senior','Under2','Under10','Under12','Under17','Under18','Under21','Other_']
+  List_OfferAvailabilityStartFormula:
+    description: "Offer availability start time period calculation methods for targeted offers. Source- OpenTravel "
+    enum: ['CustomerSpecified','FlightArrival','RentalCarDropOff','TravelGracePeriod_Distance','TravelGracePeriod_PrivateSchedule','TravelGracePeriod_PublicSchedule','Other_']
+  List_OfferBookingMethod:
+    description: "Booking method types for targeted offers. Source- OpenTravel "
+    enum: ['CorporateTravelPlanner','Online','TravelAgency','TravelAgent','Other_']
+  List_OfferCustomerValueBasis:
+    description: "Customer valuation methods for targeted offers. Source- Coverage Type (COV) OpenTravel codelist. "
+    enum: ['ClassOfService','CorporateClient','FareClass','FrequentGuest','FrequentTraveler','LoyaltyMemberTimePeriod','LoyaltyProgramLevel','PreferredClient','PremiumOfferPurchase','TripPrice','TripPurpose','UpgradePurchased','VIP','Other_']
+  List_OfferDimensionUOM:
+    description: "Dimension units of measure for targeted offers. Source- Unit of Measure (UOM) OpenTravel codelist. "
+    enum: ['Centimeter','Foot/Feet','Inch','Metre/Meter','Other_']
+  List_OfferDistanceUOM:
+    description: "Distance units of measure for targeted offers. Source- Unit of Measure (UOM) OpenTravel codelist. "
+    enum: ['Block','Mile','Kilometer','Other_']
+  List_OfferDurationUOM:
+    description: "Duration units of measure for targeted offers. Source- Unit of Measure (UOM) OpenTravel codelist. "
+    enum: ['Day','Hour','Minute','Month','Week','Other_']
+  List_OfferFareClass:
+    description: "Fare classes for targeted offers. Source- Unit of Measure (UOM) OpenTravel codelist. "
+    enum: ['Business','Economy','First','Other_']
+  List_OfferLocationType:
+    description: "Location types for targeted offers. Source- Coverage Type (COV) OpenTravel codelist. "
+    enum: ['Origin','Destination','SingleLocation']
+  List_OfferLoyaltySector:
+    description: "Loyalty program travel sector for targeted offers. Source- OpenTravel "
+    enum: ['Leisure','Lodging','Transportation','Other_']
+  List_OfferMeasurementSystem:
+    description: "Measurement system for targeted offers. Source- OpenTravel "
+    enum: ['Imperial','Metric','US_Customary']
+  List_OfferPassengerType:
+    description: "Traveler/ customer types for targeted offers. Source- OpenTravel "
+    enum: ['CorporateEmployee','Disabled','FrequentGuest','FrequentTraveler','Government','Group','LoyaltyProgramMember','MeetingAttendee','Military','Retired','VIP','Other_']
+  List_OfferPaymentCardIssuer:
+    description: "Payment card issuers for targeted offers. Source- OpenTravel "
+    enum: ['AmericanExpress','BankOfAmerica','BritishAirways','CapitalOne','Chase','Citibank','ContinentalAirlines','DeltaAirlines','DiscoverCard','Disney','Eurocard','Hilton','Hyatt','Mariott','Mastercard','RitzCarlton','SouthwestAirlines','StarwoodHotels','UnitedAirlines','USAirways','VISA','Other_']
+  List_OfferPaymentCardType:
+    description: "Payment card types for targeted offers. Source- OpenTravel "
+    enum: ['AmericanExpress','DiscoverCard','Eurocard','Mastercard','VISA','Other_']
+  List_OfferPaymentMethod:
+    description: "Payment methods for targeted offers. Source- Coverage Type (COV) OpenTravel codelist. "
+    enum: ['BusinessCheck','Cash','Check','CorporateAccount','Coupon','CreditCard','DebitCard','DirectBill','InternetAccount','LoyaltyPaymentCard','LoyaltyRedemption','MobilePayment','Ticket','Voucher']
+  List_OfferPaymentStatus:
+    description: "Payment status for targeted offers. Source- Coverage Type (COV) OpenTravel codelist. "
+    enum: ['Guaranteed','Prepaid','Unpaid','Other_']
+  List_OfferPetType:
+    description: "Pet types for targeted offers. Source- Pets Policy Code (PET) OpenTravel codelist. "
+    enum: ['Cat','Dog','ServiceAnimal','Other_']
+  List_OfferPricingType:
+    description: "Pricing types for targeted offers. Source- Coverage Type (COV) OpenTravel codelist. "
+    enum: ['PerEvent','PerGroup','PerPerson','Other_']
+  List_OfferPropertyClassType:
+    description: "Property classification types for targeted offers. Source- Property Class Type (PCT) OpenTravel codelist. "
+    enum: ['ConferenceMeeting','Corporate','Budget/Economy/Hostel','ExtendedStay','Golf','Luxury/Upscale/Resort','Midscale','Ski','Spa','VacationRental','Other_']
+  List_OfferRateCategory:
+    description: "Rate categories for targeted offers. Source- Rate Category (RTC) OpenTravel codelist. "
+    enum: ['Association','Business','Convention','Corporate','Employee','Government','Leisure','Negotiated','Promotional','Standard','VIP','Other_']
+  List_OfferReservationStatus:
+    description: "Reservation statuses for targeted offers. Source- Coverage Type (COV) OpenTravel codelist. "
+    enum: ['Confirmed','None','Tentative','Other_']
+  List_OfferTypesRequested:
+    description: "Requested offer types for targeted offers. Source- Coverage Type (COV) OpenTravel codelist. "
+    enum: ['Activity','Flight','Cruise','DayTour','GroundTransportation','Lodging','Merchandise','PackageTour','Rail','VehicleRental','Other_']
+  List_OfferTourActivityCategory:
+    description: "Tour/ activity categories for targeted offers. Source- OpenTravel "
+    enum: ['Accessible','Adventure','Cultural','EcoAdventure','Educational','Family','FoodAndBeverage','Group','Romantic','SportsAndRecreation','Other_']
+  List_OfferTravelSegment:
+    description: "Travel segments for targeted offers. Source- OpenTravel "
+    enum: ['LeisureAndActivities','Lodging','Transportation','TravelServices']
+  List_OfferTripDirection:
+    description: "Trip directions for targeted offers. Source- Coverage Type (COV) OpenTravel codelist. "
+    enum: ['OneWay','Outbound','Return']
+  List_OfferTripMode:
+    description: "Trip modes for targeted offers. Source- Coverage Type (COV) OpenTravel codelist. "
+    enum: ['Activity','Flight','Cruise','DayTour','GroundTransportation','Lodging','PackageTour','Train','VehicleRental','Other_']
+  List_OfferTripPurpose:
+    description: "Trip mode purposes for targeted offers. Source- OpenTravel "
+    enum: ['BereavmentOrEmergency','Business','BusinessAndPersonal','CharterOrGroup','ConferenceOrEvent','Personal']
+  List_OfferTripStage:
+    description: "Trip stages for targeted offers. Source- Coverage Type (COV) OpenTravel codelist. "
+    enum: ['PreTrip','InTrip','PostTrip','_Other']
+  List_OfferVehicleClass:
+    description: "Rental vehicle classes for targeted offers. Source- Vehicle Size (VEH) OpenTravel codelist. "
+    enum: ['Compact/Economy','Exotic','Fullsize','FuelEfficient','Intermediate/Midsize','LargeSUV','Luxury/Premium','Minivan','Standard','Stretch','Other_']
+  List_OfferWeightUOM:
+    description: "Weight units of measure for targeted offers. Source- Unit of Measure (UOM) OpenTravel codelist. "
+    enum: ['Kilogram','Ounce','Pound','Other_']
+  List_PaymentCardIssuer_Base:
+    description: "An open list of payment card issuers. Source- OpenTravel "
+    enum: ['AmericanExpress','BankOfAmerica','BritishAirways','CapitalOne','Chase','Citibank','ContinentalAirlines','DeltaAirlines','DinersClub','DiscoverCard','Disney','Eurocard','Hilton','Hyatt','JapanCreditBureau','Mariott','Mastercard','RitzCarlton','SouthwestAirlines','StarwoodHotels','UnitedAirlines','USAirways','VISA','Other_']
+  List_PowerType_Base:
+    description: "An open list of power types. Source- OpenTravel. "
+    enum: ['Diesel','Electric','Gas','Oil','Solar','Other_']
+  List_Proximity_Base:
+    description: "A closed list of proximities. Source- OpenTravel. "
+    enum: ['Nearby','NotSpecified','Offsite','Onsite','OnsiteAndOffsite']
+  List_RateCategory_Base:
+    description: "An open list of rate categories. Source- Rate Category (RTC) OpenTravel codelist. "
+    enum: ['All','Association','Business','BusinessStandard','Consortiums','Conventions','Corporate','Credential','Employee','FullyInclusive','Government','Inclusive','Industry','Leisure','Negotiated','Promotional','Standard','VIP','Other_']
+  List_RatePlanType_Base:
+    description: "An open list of published rate plan types and/or categories. Source- Rate Plan Type (RPT) OpenTravel codelist. Note- Typically used for rate plans that may be published, e.g. have no qualifying criteria, or may be restricted or negotiated, e.g. has qualifying criteria for eligibility and/or has been negotiated between parties. "
+    enum: ['Association','ClubConcierge','Consortia','Contract','Convention','Corporate','DayRate','DistressedInventory','FamilyPlan','Government','Group','LastRoomAvailable','Military','Monthly','Multi-DayPackage','Negotiated','Net','NonLastRoomAvailable','Package','Promotional','PromotionalPackageTour','Published','RegularRack','SeniorCitizen','TourWholesale','TravelIndustry','Weekend','Weekly','Other_']
+  List_RecycledProducts_Base:
+    description: "An open list of recycled products. Source- OpenTravel. "
+    enum: ['Aluminum','Batteries','ComputerParts','Glass','Lightbulbs','Paper','Plastic','Other_']
+  List_RecycleFacilityLocation_Base:
+    description: "An open list of recycling bin/ facility locations. Source- OpenTravel. "
+    enum: ['CommonAreas','Garage','GuestRoom','MeetingRoom','Restaurant','StaffArea','Other_']
+  List_ReservationBillingType_Base:
+    description: "An open list of reservation billing types. Source- Rate Plan Type (RPT) OpenTravel codelist. Note- Typically used for rate plans that may be published, e.g. have no qualifying criteria, or may be restricted or negotiated, e.g. has qualifying criteria for eligibility and/or has been negotiated between parties. "
+    enum: ['Casino','Corporate','Group','Individual','Other_']
+  List_SSR_Base:
+    description: "An open list of special service request types. Source- OpenTravel "
+    enum: ['BassinetSeatingRequested','BlindPassenger','BookingContainsAnInfant','BulkheadSeatingRequested','ChildAged2to11Years','DeafPassenger','ExtraSeatRequired','ImpairedMobilityPassenger','InfantAccompanyingAdultPassenger','LanguageAssistance','MedicalCondition','MeetAndAssist','OxygenRequired','PetInCabin','SpecialDiet_MealRestrictions','ServiceAnimal','SpecialLuggage','UnaccompaniedMinor','WheelchairRequired','Other_']
+  List_TransactionAction_Base:
+    description: "An open list of transaction action types. Source- OpenTravel Note- Specifies the type of action requested when more than one function could be handled by the message. "
+    enum: ['Book','Cancel','Commit','CommitOverrideEdits','Hold','Initiate','Ignore','Modify','Ticket','Quote','VerifyPrice','Other_']
+  List_TravelPurpose_Base:
+    description: "An open list of travel purposes. Source- Travel Purpose (TVP) OpenTravel codelist. "
+    enum: ['Bereavment/Emergency','Business','BusinessAndPersonal','Charter/Group','Conference/Event','Personal','Other_']
+  List_UnitOfMeasure_Base:
+    description: "An open list of units of measure. Source- Unit of Measure (UOM) OpenTravel codelist. "
+    enum: ['Acre(s)','Ampere(s)','Arpent(s)','Bi-Week(s)','Bottle','Celsius','Centare(s)','Centigram(s)','Centiliter(s)','Centimeter(s)','Column(s)','CubicFeet','CubicFoot','CubicInch(es)','CubicKilometer(s)','CubicMeter(s)','CubicYard(s)','Day(s)','Degree(s)','Dozen','dpi-DotsPerInch','Each','Fahrenheit','Feet','FluidOunce(s)','Foot','FullDuration','Gallon(s)','GB-Gigabyte','Gbps-GigabitsPerSecond','GBps-GigabytesPerSecond','GHz-Gigahertz','Glass','Gram(s)','Hectare(s)','HorsePower','Hour(s)','Inch(es)','KB-Kilobyte','Kbps-KilobitsPerSecond','kHz-Kilohertz','Kilogram(s)','Kiloliter(s)','Kilometer(s)','KilometersPerHour','Kilowatt(s)','Knot(s)','Litre(s)','Magnum','MB-Megabyte','Mbps-MegabitsPerSecond','MBps-MegabytesPerSecond','Metre(s)','MHz-Megahertz','Microgram(s)','Mile(s)','MilesPerGallon','MilesPerHour','Milligram(s)','Milliliter(s)','Millimeter(s)','Million(s)','Minute(s)','Month(s)','Morgan(s)','Nanogram(s)','Nanometer(s)','Ohm(s)','Ounce(s)','Pica(s)','Piece(s)','Pint(s)','Pixel(s)','Pixels/CM','Pixels/Inch','Point(s)','Pound(s)','Quart(s)','Resolution','Rod(s)','Second(s)','SquareAcre(s)','SquareFeet','SquareFoot','SquareInch(es)','SquareKilometer(s)','SquareMetre(s)','SquareMile(s)','SquareYard(s)','TB-Terabyte','Volt(s)','Watt(s)','Week(s)','Yard(s)','Year(s)','Other_']
+  List_VehCategory_Base:
+    description: "An open list of vehicle categories. Source- Vehicle Category (VEC) OpenTravel codelist. "
+    enum: ['2WheelVehicle','All-Terrain','Boat','Car/Sedan','Coach/Bus','CommercialVan/Truck','Convertible','Coupe','Crossover','ExtendedCabPickup','Limo','Monospace','Motorcycle','Motorhome','Pickup','Recreational','RegularCabPickup','Roadster','Shuttle','Special','SpecialOffer','Sport','StationWagon','SUV','Train','Truck','Van','Other_']
+  List_VehChargePurpose_Base:
+    description: "An open list of vehicle charge purposes. Source- Vehicle Charge Purpose (VCP) OpenTravel codelist. "
+    enum: ['AdditionalDay','AdditionalDistance','AdditionalDrive','AdditionalHour','AdditionalPassengers','AdditionalWeek','Adjustment','AirConditioningSurcharge','AirportFee','BaseRate','CarSeatFee','CleaningFee','ContractFee','Coverage','CustomerDropOff','CustomerPickup','Discount','DriverWaitTime','Drop','EarlyAM_Fee','Equipment','ExtraBaggage','ExtraGratuity','ExtraStop','Fee','Fuel','FuelSurcharge','Gratuity','Greeter','HolidaySurcharge','LatePM_Fee','Mandatory','MandatoryChargesTotal','MeetAndGreet','Optional','Parking','ParkingFees','PayOnArrivalAmount','PetSurcharge','Phone','PrepaidFuel','PrepayAmount','PushCart','RateOverride','RegistrationFee','Representative','Senior','SpecialRequest','StandardGratuity','Stop','Subtotal','Surcharge','SurfaceTransportationCharge(STC)','Tax','Tip','Tolls','TravelTimeFee','VehicleCollection','VehicleDelivery','VehicleLicenseFee','VehicleRental','WaitTime','WinterServiceCharge','YoungDriver','Other_']
+  List_VehSize_Base:
+    description: "An open list of vehicle sizes. Source- Vehicle Size (VEH) OpenTravel codelist. "
+    enum: ['12FootTruck','12PassengerVan','15PassengerVan','20FootTruck','24FootTruck','26FootTruck','50PassengerCoach','CargoVan','Compact','CompactElite','Economy','EconomyElite','Exotic','ExoticSUV','FourWheelDrive','Fullsize','FullsizeElite','Intermediate','IntermediateElite','LargeSUV','LargeTruck','Luxury','LuxuryElite','MediumSUV','Midsize','Mini','MiniElite','Minivan','Moped','Oversize','Premium','PremiumElite','Regular','Shuttle','SmallSUV','Small/MediumTruck','Special','Standard','StandardElite','Stretch','Subcompact','Unique','Other_']
+  List_QuestionCategory_Base:
+    description: "An open list of review question categories."
+    enum: ['OverallRating','All','Accessibility','Ambiance','Beach','BedComfort','Cleanliness','Cons','FamilyFriendly','FoodAndBeverage','Location','Pool','Pros','RecreationalFacilties','Restaurants','RoomQuality','Services','Staff','Transportation','TravelerQuestion','TravelerStory','Value','Other_']
+  OTA_CodeExtGroup:
+    description: "Code extension definition without dimension information."
+    type: object
+    required: false
+    properties: 
+      RemovalInd:
+        description: "Item removal indicator. Example- false Implementer- If true, this item is obsolete and should be removed from the receiving system. "
+        type: boolean
+        required: false
+      Code:
+        description: "Proprietary code. Example- MYB Implementer- Place a code value in this attribute if you have selected the \"Other_\" value in the enumerated list. Note that this value should be known to your trading partners. "
+        type: string
+        required: false
+      Description:
+        description: "Code description. Example- Party Supplies "
+        type: string
+        required: false
+      DescriptionDetail:
+        description: "Code description detail. Example- Mylar Baloons "
+        type: string
+        required: false
+      SourceName:
+        description: "Code authority or owner. Example- OpenTravel Implementer- This may be a source authority/ owner name, ID or code. "
+        type: string
+        required: false
+      SourceURL:
+        description: "Code authority or owner URL. Example- http-//www.opentravel.org Implementer- This is A URL to the code source authority/ owner. "
+        type: string
+        pattern: \w+:(\/?\/?)[^\s]+
+        required: false
+      ResourceName:
+        description: "Code resource name or ID. Example- OpenTravel 2012A CodeList "
+        type: string
+        required: false
+      ResourceURL:
+        description: "Code resource URL. Example- http-//www.opentravel.org/somecodelist.html Implementer- This is A URL to the code resource. "
+        type: string
+        pattern: \w+:(\/?\/?)[^\s]+
+        required: false
+      UniqueID:
+        description: "Unique ID for code. Example- MYB123 Implementer- This is used for a database or key ID for the code item (if it is different from the @CodeExtension) in relationship to the obsolete code indicator. "
+        type: string
+        required: false
+  CodeListSummaryExtension:
+    description: "Simple Code List extension structure that supports OpenTravel open lists and third-party code lists."
+    type: object
+    required: false
+    properties: 
+      RemovalInd:
+        description: "Item removal indicator. Example- false Implementer- If true, this item is obsolete and should be removed from the receiving system. "
+        type: boolean
+        required: false
+      Language:
+        description: "Code information language. Example- en Note- This is the language that the code information is specified in. OpenTravel Best Practice for Language Designation- Unless otherwise noted, all language designations are two alpha characters and WILL follow ISO 639-1 prescribed format. Reference- http-//www.iso.org/iso/home.htm "
+        type: string
+        pattern: ([a-zA-Z]{2}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*
+        required: false
+      Code:
+        description: "Code value. Example- MYB Implementer- Place a code value in this attribute if you have selected the \"Other_\" value in the enumerated list. Note that this value should be known to your trading partners. "
+        type: string
+        required: false
+      Description:
+        description: "Code description. Example- Party Supplies "
+        type: string
+        required: false
+      DescriptionDetail:
+        description: "Code description detail. Example- Mylar Baloons "
+        type: string
+        required: false
+      SourceName:
+        description: "Code authority or owner. Example- OpenTravel Implementer- This may be a source authority/ owner name, ID or code. "
+        type: string
+        required: false
+      SourceURL:
+        description: "Code authority or owner URL. Example- http-//www.opentravel.org Implementer- This is A URL to the code source authority/ owner. "
+        type: string
+        pattern: \w+:(\/?\/?)[^\s]+
+        required: false
+      ResourceID:
+        description: "Code resource ID. Example- OTALIST "
+        type: string
+        required: false
+      ResourceName:
+        description: "Code resource name. Example- OpenTravel 2012A CodeList "
+        type: string
+        required: false
+      ResourceURL:
+        description: "Code resource URL. Example- http-//www.opentravel.org/somecodelist.html Implementer- This is A URL to the code resource. "
+        type: string
+        pattern: \w+:(\/?\/?)[^\s]+
+        required: false
+      UniqueID:
+        description: "Code unique ID. Example- MYB123 Implementer- This is used for a database or key ID for the code item (if it is different from the @CodeExtension) in relationship to the obsolete code indicator. "
+        type: string
+        required: false
+  CodeListDetailExtension:
+    description: "Detail Code List extension structure that includes all Summary information plus quantity, proximity, charge, schedule and apply to level information."
+    type: CodeListSummaryExtension
+    required: false
+    properties: 
+      ApplyToLevel:
+        description: "Applicable item level. Example- Property "
+        type: List_ApplyToLevel[]
+        minItems: 0
+      Charge:
+        description: "Associated charge information."
+        type: CodeListFeeType[]
+        minItems: 0
+      Schedule:
+        description: "Associated service schedule information."
+        type: CodeListScheduleType[]
+        minItems: 0
+      Quantity:
+        description: "Associated quantity for the item. Example- 2 "
+        type: integer
+        minimum: 1
+        required: false
+      Proximity:
+        description: "Associated proximity for the item. Example- 2 "
+        enum: ['Nearby','NotSpecified','Offsite','Onsite','OnsiteAndOffsite']
+        required: false
+  CodeListExtension:
+    description: "Choice between summary and detailed code extension information."
+    type: (Summary | Detail)
+    required: false
+    properties: 
+      ChargeInd:
+        description: "Charge information specified indicator. Example- true Implementer- If true, charge information has been specified and the Detail/Charge element should be parsed. "
+        type: boolean
+        required: false
+      ProximityInd:
+        description: "Proximity information specified indicator. Example- true Implementer- If true, proximity information has been specified and the @Proximity attribute should be parsed. "
+        type: boolean
+        required: false
+      QuantityInd:
+        description: "Quantity information specified indicator. Example- true Implementer- If true, quantity information has been specified and the @Quantity attribute should be parsed. "
+        type: boolean
+        required: false
+      ScheduleInd:
+        description: "Schedule information specified indicator. Example- true Implementer- If true, schedule information has been specified and the Detail/Schedule element should be parsed. "
+        type: boolean
+        required: false
+  CodeListFeeType:
+    description: "Fees associated with a code item."
+    type: object
+    required: false
+    properties: 
+      Amount:
+        description: "Fee amount or percentage."
+        type: (Currency | AlternateCurrency | Percent)
+        required: false
+      Type:
+        description: "Fee type."
+        type: List_FeeTaxType
+        required: false
+      Description:
+        description: "Fee description. Implementer- The associated language identifier for this descriptive information is specified in the @Language attribute. "
+        type: string[]
+        minItems: 0
+        maxItems: 5
+      Qualifiers:
+        description: "Fee qualifier(s)."
+        type: object
+        required: false
+        properties: 
+          ChargeUnit:
+            description: "Charge unit information."
+            type: object
+            required: false
+            properties: 
+              Unit:
+                description: "Specific charge unit. Example- PerPerson "
+                type: List_ChargeUnit
+                required: false
+                properties: 
+                  ExemptQty:
+                    description: "Exempt quantity. Example- 2 Note- This is the number of units permitted before charges are applied. "
+                    type: integer
+                    minimum: 1
+                    required: false
+                  MaximumQty:
+                    description: "Maximum units. Example- 7 Note- This is the maximum number of charge units for which the charge will be applied. "
+                    type: integer
+                    minimum: 1
+                    required: false
+              Frequency:
+                description: "Charge frequency. Example- Daily Note- This is the timeframe used to apply the charge. "
+                type: List_ChargeFrequency
+                required: false
+                properties: 
+                  ExemptQty:
+                    description: "Exempt quantity. Example- 2 Note- This is the frequency exemption quantity before charges are applied. "
+                    type: integer
+                    minimum: 1
+                    required: false
+                  MaximumQty:
+                    description: "Maximum quantity. Example- 7 Note- This is the maximum number of times the charge will be applied (e.g. waive charges above 30 nights). "
+                    type: integer
+                    minimum: 1
+                    required: false
+          EffectiveDateTime:
+            description: "Fee starting date/ time. Example- 2013-01-13 "
+            type: datetime
+            required: false
+          ExpireDateTime:
+            description: "Fee ending date/ time. Example- 2013-01-16 "
+            type: datetime
+            required: false
+          MaxAge:
+            description: "Maximum age of applicability. Example- 62 "
+            type: integer
+            minimum: 1
+            required: false
+          MinAge:
+            description: "Minimum age of applicability. Example- 21 "
+            type: integer
+            minimum: 1
+            required: false
+      Taxes:
+        description: "Fee taxes."
+        type: object[]
+        minItems: 0
+        items:
+          properties: 
+            Amount:
+              description: "Tax amount or percentage information."
+              type: (Currency | AlternateCurrency | Percent)
+              required: false
+            Type:
+              description: "Tax type."
+              type: List_FeeTaxType
+              required: false
+            Description:
+              description: "Tax description. Implementer- The associated language identifier for this descriptive information is specified in the @Language attribute. "
+              type: string[]
+              minItems: 0
+              maxItems: 5
+            Qualifiers:
+              description: "Tax qualifier information."
+              type: object
+              required: false
+              properties: 
+                ChargeUnit:
+                  description: "Charge unit information."
+                  type: object
+                  required: false
+                  properties: 
+                    Unit:
+                      description: "Specific charge unit. Example- PerPerson "
+                      type: List_ChargeUnit
+                      required: false
+                      properties: 
+                        ExemptQty:
+                          description: "Exempt quantity. Example- 2 Note- This is the number of units permitted before charges are applied. "
+                          type: integer
+                          minimum: 1
+                          required: false
+                        MaximumQty:
+                          description: "Maximum units. Example- 7 Note- This is the maximum number of charge units for which the charge will be applied. "
+                          type: integer
+                          minimum: 1
+                          required: false
+                    Frequency:
+                      description: "Charge frequency. Example- Daily Note- This is the timeframe used to apply the charge. "
+                      type: List_ChargeFrequency
+                      required: false
+                      properties: 
+                        ExemptQty:
+                          description: "Exempt quantity. Example- 2 Note- This is the frequency exemption quantity before charges are applied. "
+                          type: integer
+                          minimum: 1
+                          required: false
+                        MaximumQty:
+                          description: "Maximum quantity. Example- 7 Note- This is the maximum number of times the charge will be applied (e.g. waive charges above 30 nights). "
+                          type: integer
+                          minimum: 1
+                          required: false
+                EffectiveDateTime:
+                  description: "Fee starting date/ time. Example- 2013-01-13 "
+                  type: datetime
+                  required: false
+                ExpireDateTime:
+                  description: "Fee ending date/ time. Example- 2013-01-16 "
+                  type: datetime
+                  required: false
+                MaxAge:
+                  description: "Maximum age of applicability. Example- 62 "
+                  type: integer
+                  minimum: 1
+                  required: false
+                MinAge:
+                  description: "Minimum age of applicability. Example- 21 "
+                  type: integer
+                  minimum: 1
+                  required: false
+            MandatoryInd:
+              description: "Mandatory tax indicator. Example- true Implementer- If true, the tax is mandatory. "
+              type: boolean
+              required: false
+            TaxRPH:
+              description: "Tax reference ID."
+              type: string
+              pattern: ^[0-9]{1,8}$
+              required: false
+      MandatoryInd:
+        description: "Mandatory fee indicator. Example- true Implementer- If true, the fee is mandatory. "
+        type: boolean
+        required: false
+      TaxInclusiveInd:
+        description: "Taxes included in fee indicator. Example- true Implementer- If true, taxes have been included in the fee amount. "
+        type: boolean
+        required: false
+      TaxableInd:
+        description: "Fee taxable indicator. Example- true Implementer- If true, the fee is subject to tax. "
+        type: boolean
+        required: false
+      DeterminationMethod:
+        description: "Amount determination method. Example- Inclusive Note- This is used to indicate if the amount is inclusive or exclusive of other charges, such as taxes, or is cumulative (amounts have been added to each other). "
+        enum: ['Cumulative','Exclusive','Inclusive']
+        required: false
+      FeeRPH:
+        description: "Fee ID. Example- 1 Implementer- This is a unique ID for this set of fee information that may be referenced as an associated fee for schedule information. "
+        type: string
+        pattern: ^[0-9]{1,8}$
+        required: false
+  CodeListScheduleType:
+    description: "Operating or availability schedule associated with a code item."
+    type: object
+    required: false
+    properties: 
+      OperationTimes:
+        description: "Operation times."
+        type: object
+        required: false
+        properties: 
+          OperationTime:
+            description: "Provides operating times of a facility."
+            type: object[]
+            minItems: 0
+            items:
+              properties: 
+                AdditionalInfo:
+                  description: "Additional operation information. Example- After hours operations "
+                  type: List_AdditionalOperationInfo
+                  required: false
+                Frequency:
+                  description: "Frequency description. Example- On the half hour "
+                  type: string
+                  required: false
+                Description:
+                  description: "Period of operation description."
+                  type: string
+                  required: false
+                Mon:
+                  description: "Monday available indicator. Example- true If true, apply to Monday. "
+                  type: boolean
+                  required: false
+                Tue:
+                  description: "Tuesday available indicator. Example- true If true, apply to Tuesday. "
+                  type: boolean
+                  required: false
+                Weds:
+                  description: "Wednesday available indicator. Example- true If true, apply to Wednesday. "
+                  type: boolean
+                  required: false
+                Thur:
+                  description: "Thursday available indicator. Example- true If true, apply to Thursday. "
+                  type: boolean
+                  required: false
+                Fri:
+                  description: "Friday available indicator. Example- true If true, apply to Friday. "
+                  type: boolean
+                  required: false
+                Sat:
+                  description: "Saturday available indicator. Example- true If true, apply to Saturday. "
+                  type: boolean
+                  required: false
+                Sun:
+                  description: "Sunday available indicator. Example- true If true, apply to Sunday. "
+                  type: boolean
+                  required: false
+                Start:
+                  description: "Operation start period."
+                  type: CodeListSchedulePeriodType
+                  required: false
+                Duration:
+                  description: "Period duration. Example- P2D "
+                  type: string
+                  pattern: -?P[0-9]+Y?([0-9]+M)?([0-9]+D)?(T([0-9]+H)?([0-9]+M)?([0-9]+(\.[0-9]+)?S)?)?
+                  required: false
+                End:
+                  description: "Operation end period."
+                  type: CodeListSchedulePeriodType
+                  required: false
+      Start:
+        description: "Schedule start period."
+        type: CodeListSchedulePeriodType
+        required: false
+      Duration:
+        description: "Period duration. Example- P2D "
+        type: string
+        pattern: -?P[0-9]+Y?([0-9]+M)?([0-9]+D)?(T([0-9]+H)?([0-9]+M)?([0-9]+(\.[0-9]+)?S)?)?
+        required: false
+      End:
+        description: "Schedule end period."
+        type: CodeListSchedulePeriodType
+        required: false
+      FeeRefRPH:
+        description: "Fee reference ID. Example- 1 Implementer- This is a reference to an @FeeRPH defined in the CodeListFeeType/@FeeRPH element. This reference may be used to associate a set of fee information with this schedule information. "
+        type: string
+        pattern: ^[0-9]{1,8}$
+        required: false
+      ScheduleRPH:
+        description: "Schedule ID. Example- 1 Implementer- This is a unique ID for this set of schedule information that may be referenced elsewhere in this message. "
+        type: string
+        pattern: ^[0-9]{1,8}$
+        required: false
+  List_AdditionalOperationInfo:
+    description: "Hours of operation operation detail. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: object
+    required: false
+    properties: 
+      List:
+        description: "Enumerated list."
+        type: List_AdditionalOperationInfo_Base
+        required: false
+      Extension:
+        description: "Code List extension information."
+        type: CodeListSummaryExtension
+        required: false
+  List_AgeCategory:
+    description: "Person age categories. Note- Age categories  are typically used to qualify pricing and/or eligibility. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_AgeCategory_Base
+        required: true
+  List_AirFareDateType:
+    description: "Air fare applicable date types. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_AirFareDateType_Base
+        required: true
+  List_AirTripType:
+    description: "Air trip types. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_AirTripType_Base
+        required: true
+  List_ApplyToLevel:
+    description: "Code application level. Note- Age categories  are typically used to qualify pricing and/or eligibility. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: object
+    required: false
+    properties: 
+      List:
+        description: "Enumerated list."
+        type: List_ApplyToLevel_Base
+        required: false
+      Extension:
+        description: "Code List extension information."
+        type: CodeListSummaryExtension
+        required: false
+  List_BankAccountType:
+    description: "Bank account types. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_BankAccountType_Base
+        required: true
+  List_CabinClass:
+    description: "Cabin types. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_CabinClass_Base
+        required: true
+  List_ChargeFrequency:
+    description: "Charge units. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: object
+    required: false
+    properties:
+      content:
+        type: List_ChargeFrequency_Base
+        required: true
+  List_ChargeUnit:
+    description: "Charge types and units. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: object
+    required: false
+    properties:
+      content:
+        type: List_ChargeUnit_Base
+        required: true
+  List_DataActionType:
+    description: "Data action types. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_DataActionType_Base
+        required: true
+  List_FareStatus:
+    description: "Fare construction, creation and publishing methods. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_FareStatus_Base
+        required: true
+  List_FeeTaxType:
+    description: "Fee or tax type. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: object
+    required: false
+    properties: 
+      List:
+        description: "Enumerated list."
+        type: List_FeeTaxType_Base
+        required: false
+      Extension:
+        description: "Code List extension information."
+        type: CodeListSummaryExtension
+        required: false
+  List_GlobalIndicatorType:
+    description: "Global travel area identifiers. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_GlobalIndicatorType_Base
+        required: true
+  List_GolferType:
+    description: "Golfer types. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_GolferType_Base
+        required: true
+  List_GroundLocationType:
+    description: "Ground transportation service locations. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_GroundLocationType_Base
+        required: true
+  List_GroundServiceProvided:
+    description: "Ground transportation service types. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_GroundServiceProvided_Base
+        required: true
+  List_LevelOfService:
+    description: "Service levels. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_LevelOfService_Base
+        required: true
+  List_LoyaltyPrgCurrency:
+    description: "Loyalty program currencies. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: object
+    required: false
+    properties: 
+      List:
+        description: "Enumerated list."
+        type: List_LoyaltyPrgCurrency_Base
+        required: false
+      Extension:
+        description: "Code List extension information."
+        type: CodeListSummaryExtension
+        required: false
+  List_PaymentCardIssuer:
+    description: "Payment card issuers. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_PaymentCardIssuer_Base
+        required: true
+  List_PowerType:
+    description: "Power types. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_PowerType_Base
+        required: true
+  List_Proximity:
+    description: "Proximity type. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: object
+    required: false
+    properties:
+      content:
+        type: List_Proximity_Base
+        required: true
+  List_RateCategory:
+    description: "Rate/ rate plan categories. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_RateCategory_Base
+  List_RatePlanType:
+    description: "Rate plan types. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_RatePlanType_Base
+        required: true
+  List_RecycledProducts:
+    description: "Recycled products. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_RecycledProducts_Base
+        required: true
+  List_RecycleFacilityLocation:
+    description: "Recycling bin/ facility locations. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_RecycleFacilityLocation_Base
+        required: true
+  List_ReservationBilling:
+    description: "Reservation billing code types. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_ReservationBillingType_Base
+        required: true
+  List_SSRType:
+    description: "Soecial service request type. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_SSR_Base
+        required: true
+  List_TransactionAction:
+    description: "Transaction actions. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_TransactionAction_Base
+        required: true
+  List_TravelPurpose:
+    description: "Travel purpose types. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_TravelPurpose_Base
+        required: true
+  List_UnitOfMeasure:
+    description: "Units of measure. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_UnitOfMeasure_Base
+        required: true
+  List_VehCategory:
+    description: "Vehicle categories. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_VehCategory_Base
+        required: true
+  List_VehChargePurpose:
+    description: "Vehicle charge purpose types. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_VehChargePurpose_Base
+        required: true
+  List_VehSize:
+    description: "Vehicle sizes. Use- This is a string list of enumerations with an \"Other_\" literal to support an open enumeration list. Use the \"Other_\" enumeration in combination with the Code Extension fields to exchange a value that is not in the list and is known to your trading partners. "
+    type: OTA_CodeExtGroup
+    required: false
+    properties:
+      content:
+        type: List_VehSize_Base
+        required: true
+  List_QuestionCategory:
+    description: "Review question categories"
+    type: object
+    required: false
+    properties: 
+      List:
+        description: "An enumerated list."
+        type: List_QuestionCategory_Base
+        required: false
+      Extension:
+        description: "Code List extension information."
+        type: CodeListSummaryExtension
+        required: false

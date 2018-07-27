@@ -1,0 +1,852 @@
+#%RAML 1.0
+title: AC-EIP-PSS.raml
+version: v1.0
+baseUri: https://mocksvc.mulesoft.com/mocks/a69d8f52-86e0-4eb5-9ab6-efc5bffbf1e3/v1 # baseUri: https://api.aircanada.com/v1
+description: |
+  EIP PSS services.
+
+#documentation:
+#  - title: Architectural Guidance
+#    content: !include doc/architecture.md
+#  - title: RESTFul API
+#    content: !include doc/restful.md
+#  - title: OTA Model
+#    content: !include doc/ota.md
+#  - title: Authentication
+#    content: !include doc/authentication.md
+#  - title: Implementation Guidance
+#    content: !include doc/implementation.md
+#  - title: Altea
+#    content: !include doc/altea.md
+#  - title: Flows
+#    content: !include doc/flows.md
+#  - title: Pre-Booking Check
+#    content: !include doc/prebooking.md
+#  - title: Booking
+#    content: !include doc/booking.md
+#  - title: Payment
+#    content: !include doc/payment.md
+#  - title: Doc Issuance
+#    content: !include doc/documents.md
+#  - title: Payment Cards
+#    content: !include doc/cards.md
+
+mediaType:
+  application/json
+
+uses:
+  #SimpleTypes: library/OTA/SimpleTypes.raml
+  AirBookRQ : types/Request/AirBookRQ.raml
+  AirBookRS : types/Response/AirBookRS.raml
+  AirAvailRQ : types/Request/AirAvailRQ.raml
+  AirAvailRS : types/Response/AirAvailRS.raml
+  AirFlifoRQ: types/Request/AirFlifoRQ.raml
+  AirFlifoRS: types/Response/AirFlifoRS.raml
+  AirSeatMapRQ : types/Request/AirSeatMapRQ.raml
+  AirSeatMapRS : types/Response/AirSeatMapRS.raml
+  AirLowFareSearchRQ : types/Request/AirLowFareSearchRQ.raml
+  AirLowFareSearchRS : types/Response/AirLowFareSearchRS.raml
+  AirPriceRQ: types/Request/AirPriceRQ.raml
+
+types:
+  PNR_Ref:
+    description: PNR Reference Number
+    type: string
+    minLength: 6
+    maxLength: 6
+    pattern: ^[A-Z0-9]{6}$
+    example: A1B2C3
+  PaymentCard:
+    type: object
+    properties:
+      cardNumber:
+        description: Card number
+        required: true
+        type: string
+        pattern: ^[0-9]{16}$
+        example: "4444333322221111"
+      securityId:
+        description: Card number
+        required: true
+        type: string
+        pattern: ^[0-9]{3,4}$
+        example: "111"
+      expiryDate:
+        description: Expiry date MMYY
+        required: true
+        type: string
+        pattern: ^(0[1-9]|1[0-2])[0-9]{2}$
+        example: "1221"
+      ccHolderName:
+        description: Card holder name
+        required: true
+        type: string
+        minLength: 1
+        example: "John Doe"
+  TokenizedCard:
+    type: object
+    properties:
+      token:
+        description: The tokenized card information
+        required: true
+        type: string
+        pattern: ^[0-9A-Z]{16}$
+        example: "4444337QW53Z1111"
+      ccv:
+        description: Tokenized CCV
+        required: false
+        type: string
+        pattern: ^[0-9A-Z]{3,4}$
+        example: "4A1"
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        required: true
+      message:
+        type: string
+        required: true
+        minLength: 1
+      application:
+        type: string
+        required: true
+        minLength: 1
+
+traits:
+  EIP_Headers:
+    headers:
+      AC-App-ID:
+        description: Application ID
+        type: string
+        required: true
+        example: FlightPass
+      AC-Office-ID:
+        description: Office Id
+        type: string
+        required: true
+        example: YULAC08AA
+      AC-Location:
+        description: Altea full location, this may be required for some Web Services
+        type: string
+        required: false
+      AC-Transaction-ID:
+        description: Transaction ID use for tracing
+        type: string
+        required: false
+        example: 58807E1B-9D26-4689-BE43-D69E43AF1E2E
+      AC-Long-Session-ID:
+        description: A session ID passed back to the caller when long sessions are available
+        type: string
+        required: false
+        example: 0483B553-AFCD-4F01-87B9-2658C56FDAE9
+  ErrorResponse400:
+    responses:
+      400:
+        description: Bad Request. Invalid request syntax, the error message will in most cases contain the exact reason.
+        body:
+          application/json:
+            type: Error[]
+            example: !include 400.error.json
+  ErrorInternal500:
+    responses:
+      500:
+        description: Internal Server Error. The server failed to complete the request
+        body:
+          application/json:
+            type: Error
+            example: !include 500.error.json
+  LongSessionAndTicket:
+    queryParameters:
+      createTicket:
+        type: boolean
+        description: |
+          When true a ticket is created at booking.
+        required: false
+      longSessions:
+        type: boolean
+        description: |
+          When true the EIP keeps a session open to internal services.
+          This is an expensive state and should be avoid.
+          The EIP may prevent it's usage depending on the calling application.
+        required: false
+  CancelOptions:
+    queryParameters:
+      cancelOption:
+        enum: ["refund", "EMDRefund", "EMDzero", "cancel"]
+        description: |
+          What to do on canceling a PNR or item associated with a PNR.
+          refund = refund all charges
+          EMDRefund = only refund the EMD
+          EMDzero = create a 0 dollar EMD
+          cancel = cancel / void an item
+        required: true
+        default: "refund"
+  ListSize:
+    queryParameters:
+      listSize:
+        type: number
+        description: Retrieve up to list size of items.
+        required: true
+        minimum: 1
+        maximum: 100
+        default: 9
+
+/prebooking/get:
+  post:
+    is: ["EIP_Headers", "ListSize", "ErrorResponse400", "ErrorInternal500"]
+    description: Do a pre-booking check for pricing and availability and return the pricing and availability. (OTA_AirAvailRQ OTA_AirAvailRS OTA_AirFareDisplayRQ OTA_AirFareDisplayRS)
+    body:
+      application/json:
+        type: AirAvailRQ.OTA_AirAvailRQ
+    responses:
+      200:
+        body:
+          application/json:
+            type: AirAvailRS.OTA_AirAvailRS
+  /availabilities/get:
+    post:
+      is: ["EIP_Headers", "ListSize", "ErrorResponse400", "ErrorInternal500"]
+      description: Do a pre-booking check only for availability. (OTA_AirAvailRQ OTA_AirAvailRS OTA_AirFareDisplayRQ OTA_AirFareDisplayRS)
+      body:
+        application/json:
+          type: AirAvailRQ.OTA_AirAvailRQ
+      responses:
+        200:
+          body:
+            application/json:
+              type: AirAvailRS.OTA_AirAvailRS
+  /fares/get:
+    post:
+      is: ["EIP_Headers", "ListSize", "ErrorResponse400", "ErrorInternal500"]
+      description: Do a pre-booking check only for fare pricing. (OTA_AirAvailRQ OTA_AirAvailRS OTA_AirFareDisplayRQ OTA_AirFareDisplayRS)
+      body:
+        application/json:
+          type: AirAvailRQ.OTA_AirAvailRQ
+      responses:
+        200:
+          body:
+            application/json:
+              type: AirAvailRS.OTA_AirAvailRS
+  /ancilliaries/get:
+    post:
+      is: ["EIP_Headers", "ListSize", "ErrorResponse400", "ErrorInternal500"]
+      description: Do a pre-booking check only for ancilliaries. (OTA_AirAvailRQ OTA_AirAvailRS OTA_AirFareDisplayRQ OTA_AirFareDisplayRS)
+      body:
+        application/json:
+          type: AirAvailRQ.OTA_AirAvailRQ
+      responses:
+        200:
+          body:
+            application/json:
+              type: AirAvailRS.OTA_AirAvailRS
+
+/booking:
+  description: |
+    Book a flight resulting in a PNR. (OTA_AirBookRQ OTA_AirBookRS)
+  post:
+    is: ["EIP_Headers", "LongSessionAndTicket", "ErrorResponse400", "ErrorInternal500"]
+    body:
+      application/json:
+        type: AirBookRQ.OTA_AirBookRQ
+    responses:
+      200:
+        body:
+          application/json:
+            type: AirBookRS.OTA_AirBookRS
+  /{pnr}:
+    uriParameters:
+      pnr: PNR_Ref
+    patch:
+      description: |
+        Modify an existing PNR booking. (OTA_AirBookModifyRQ)
+      is: ["EIP_Headers", "LongSessionAndTicket", "ErrorResponse400", "ErrorInternal500"]
+      body:
+        application/json:
+      responses:
+        200:
+          body:
+            application/json:
+    delete:
+      description: |
+        Cancel an existing PNR.  All associated work related to canceling a PRN is done by the EIP.
+        (OTA_CancelRQ OTA_CancelRS)
+      is: ["EIP_Headers", "CancelOptions", "ErrorResponse400", "ErrorInternal500"]
+      responses:
+        204:
+    /delete:
+      post:
+        description: Remove some items from the PNR (OTA_AirBookModifyRQ)
+        is: ["EIP_Headers", "CancelOptions", "ErrorResponse400", "ErrorInternal500"]
+        body:
+          application/json:
+        responses:
+          200:
+            body:
+              application/json:
+  /groups:
+    description: |
+      Book a flight resulting in a PNR for a group. (OTA_AirBookRQ OTA_AirBookRS)
+    post:
+      is: ["EIP_Headers", "LongSessionAndTicket", "ErrorResponse400", "ErrorInternal500"]
+      body:
+        application/json:
+      responses:
+        200:
+          body:
+            application/json:
+    /{pnr}:
+      uriParameters:
+        pnr: PNR_Ref
+      patch:
+        description: |
+          Modify an existing PNR for a group. (OTA_AirBookRQ OTA_AirBookRS)
+        is: ["EIP_Headers", "LongSessionAndTicket", "ErrorResponse400", "ErrorInternal500"]
+        body:
+          application/json:
+        responses:
+          200:
+            body:
+              application/json:
+      delete:
+        description: |
+          Cancel an existing PNR.  All associated work related to canceling a PRN is done by the EIP.
+        is: ["EIP_Headers", "CancelOptions", "ErrorResponse400", "ErrorInternal500"]
+        responses:
+          204:
+      /delete:
+        description: |
+          Deletes a passenger from a PNR.
+          Body should pass passenger details.
+        post:
+          description: Remove some items from the group PNR (OTA_AirBookRQ OTA_AirBookRS)
+          is: ["EIP_Headers", "CancelOptions", "ErrorResponse400", "ErrorInternal500"]
+          body:
+            application/json:
+          responses:
+            200:
+              body:
+                application/json:
+  /ancillaries:
+    /{pnr}:
+      uriParameters:
+        pnr: PNR_Ref
+      patch:
+        description: Modify an existing PNR's ancillaries
+          Modify an existing PNR for a group.
+        is: ["EIP_Headers", "LongSessionAndTicket", "ErrorResponse400", "ErrorInternal500"]
+        body:
+          application/json:
+        responses:
+          200:
+            body:
+              application/json:
+      /delete:
+        post:
+          description: |
+            Remove the provided ancilleries from PNR.
+            All associated work related to removing an ancillaries executed.
+          is: ["EIP_Headers", "CancelOptions", "ErrorResponse400", "ErrorInternal500"]
+          body:
+            application/json:
+          responses:
+            200:
+              body:
+                application/json:
+  /sessions:
+    delete:
+      description: Close a long session.
+      is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+      responses:
+        204:
+
+/pax:
+  /tickets/get:
+    post:
+  /{pnr}:
+    uriParameters:
+      pnr: PNR_Ref
+    get:
+      description: |
+        Retrieve a PNR based on a PNR locator. (OTA_AirBookRS)
+      is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+      queryParameters:
+        filter:
+          description: Filter out elements of the PNR
+          enum: ["full", "light"]
+          required: false
+        includeTickets:
+          description: |
+            Include the listed ticket ID's as part of the query.
+            The keyword 'ALL' means all the tickets in the PNR.
+          type: string[]
+          required: false
+      responses:
+        200:
+          body:
+            application/json:
+    patch:
+      description: Modify some PNR information associated with passengers. (OTA_AirBookRQ OTA_AirBookRS)
+      is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+      responses:
+        200:
+          body:
+            application/json:
+      queryParameters:
+        ticket:
+          description: ticket number
+          type: string
+    /delete:
+      post:
+        description: Remove passengers from the PNR.  The request must contain the passengers to remove. (OTA_AirBookRQ OTA_AirBookRS)
+        is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+        responses:
+          200:
+            body:
+              application/json:
+    /split:
+      post:
+        description: Split a PNR.  The request must contain the passengers to split out.  (OTA_AirBookRQ OTA_AirBookRS)
+        is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+        responses:
+          200:
+            body:
+              application/json:
+
+/flights:
+  /{flight_no}:
+    uriParameters:
+      flight_no: string
+    /details:
+      get:
+        is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+        description: Details of the flight. (OTA_AirDetailsRQ OTA_AirDetailsRS OTA_AirFlifoRQ OTA_AirFlifoRS)
+        body:
+          application/json:
+            type: AirFlifoRQ.OTA_AirFlifoRQ
+        responses:
+          200:
+            body:
+              application/json:
+                type: AirFlifoRS.OTA_AirFlifoRS
+    /pax:
+      get:
+        is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+        description: Retrieve the passenger list form the flight.  Include paid for set indicator.
+        queryParameters:
+          standby:
+            description: Only retrieve stand by passengers (when true employees must be false)
+            type: boolean
+            default: false
+          employee:
+            description: Only only retrieve employees (when true standby must be false)
+            type: boolean
+            default: false
+          connection:
+            description: Passengers with outbound connections.
+            type: boolean
+            default: false
+          paidSeat:
+            description: Include paid seat indicator
+            type: boolean
+            default: false
+          checkedIn:
+            description: Passenger must be checked in
+            type: boolean
+            default: false
+        body:
+          application/json:
+        responses:
+          200:
+            body:
+              application/json:
+      /ports:
+        get:  
+          is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+          description: Number of male, femail, infant and children per port
+          body:
+            application/json:
+          responses:
+            200:
+              body:
+                application/json:
+      /zones:
+        get:
+          is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+          description: Count list of Pax per Zone (Air Canada defined zone)
+          body:
+            application/json:
+          responses:
+            200:
+              body:
+                application/json:
+    /seatmaps:
+      get:
+        is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+        description: Seat map from DCS
+        body:
+          application/json:
+        responses:
+          200:
+            body:
+              application/json:
+    /summaries:
+      /bags:
+        get:
+          description: Baggage summary. (Weight summary, how many handbags, etc)
+          body:
+            application/json:
+          responses:
+            200:
+              body:
+                application/json:
+      /meals:
+        get:
+          description: Four hour and one hour meal summery.
+          body:
+            application/json:
+          responses:
+            200:
+              body:
+                application/json:
+      /employees:
+        get:
+          description: Employee travel count for leisure, business, etc
+          body:
+            application/json:
+          responses:
+            200:
+              body:
+                application/json:
+
+/seatmaps:
+  /get:
+    post:
+      is: ["EIP_Headers"]
+      description: Multiple Seat Maps, contains information pertaining to the cabin configuration and seat status of a specific airline flight. This information, in most cases, is utlized to provide an end-user with a key to the seats of a specific flight for advanced seating purposes. (OTA_AirSeatMapRQ OTA_AirSeatMapRS)
+      queryParameters:
+        flights:
+          type: string[]
+          required: true
+          minItems: 2
+          maxItems: 100
+      body:
+        application/json:
+          type: AirSeatMapRQ.OTA_AirSeatMapRQ
+      responses:
+        200:
+          body:
+            application/json:
+              type: AirSeatMapRS.OTA_AirSeatMapRS
+  /{flight_no}:
+    uriParameters:
+      flight_no: string
+    get:
+      is: ["EIP_Headers"]
+      description: A Seat Map contains information pertaining to the cabin configuration and seat status of a specific airline flight. This information, in most cases, is utlized to provide an end-user with a key to the seats of a specific flight for advanced seating purposes. (OTA_AirSeatMapRQ OTA_AirSeatMapRS)
+      responses:
+        200:
+          body:
+            application/json:
+
+/shopping:
+  /fares:
+    /get:
+      post:
+        description: Search for fares using the PNR. (OTA_AirLowFareSearchRQ OTA_AirLowFareSearchRS)
+        is: ["EIP_Headers", "ListSize", "ErrorResponse400", "ErrorInternal500"]
+        queryParameters:
+          style:
+            enum: ['bookingClass', 'lower', 'lowest']
+            required: true
+            default: 'lowest'
+          prices:
+            required: false
+            default: 'off'
+        body:
+          application/json:
+            type: AirLowFareSearchRQ.OTA_AirLowFareSearchRQ
+        responses:
+          200:
+            body:
+              application/json:
+                type: AirLowFareSearchRS.OTA_AirLowFareSearchRS
+    /calendar/get:
+      post:
+        is: ["EIP_Headers", "ListSize", "ErrorResponse400", "ErrorInternal500"]
+        description: Search for fares using various filters. (OTA_AirLowFareSearchRQ OTA_AirLowFareSearchRS)
+        body:
+          application/json:
+            #type: AirLowFareSearchRQ.OTA_AirLowFareSearchRQ
+        responses:
+          200:
+            body:
+              application/json:
+                #type: AirLowFareSearchRS.OTA_AirLowFareSearchRS
+  /ancillaries/get:
+    post:
+      description: Search for ancillaries.
+      is: ["EIP_Headers", "ListSize", "ErrorResponse400", "ErrorInternal500"]
+      responses:
+        200:
+          body:
+            application/json:
+  /flights/get:
+    post:
+      is: ["EIP_Headers", "ListSize", "ErrorResponse400", "ErrorInternal500"]
+      description: Search for flights only. (OTA_AirLowFareSearchRQ OTA_AirLowFareSearchRS)
+      responses:
+        200:
+          body:
+            application/json:
+    /calendar/get:
+      post:
+        description: Search for flights by calendar. (OTA_AirLowFareSearchRQ OTA_AirLowFareSearchRS)
+        is: ["EIP_Headers", "ListSize", "ErrorResponse400", "ErrorInternal500"]
+        body:
+          application/json:
+        responses:
+          200:
+            body:
+              application/json:
+
+/documents:
+  /{pnr}:
+    uriParameters:
+      pnr: PNR_Ref
+    post:
+      is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+      description: |
+        Issue multiple air tickets and EMDs. (OTA_AirPriceRQ OTA_AirPriceRS)
+      body:
+        application/json:
+          type: AirPriceRQ.OTA_AirPriceRQ
+      responses:
+        200:
+          body:
+            application/json:
+    patch:
+      is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+      description: |
+        Update multiple air tickets and EMDs. (OTA_AirPriceRQ OTA_AirPriceRS)
+      body:
+        application/json:
+          type: AirPriceRQ.OTA_AirPriceRQ
+      responses:
+        200:
+          body:
+            application/json:
+    delete:
+      is: ["EIP_Headers", "CancelOptions", "ErrorResponse400", "ErrorInternal500"]
+      description: |
+        Cancel all air tickets and EMDs.  (OTA_AirPriceRQ OTA_AirPriceRS)
+  /emd:
+    /{pnr}:
+      uriParameters:
+        pnr: PNR_Ref
+      post:
+        is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+        description: Issue multiple EMDs.
+        body:
+          application/json:
+        responses:
+          200:
+            body:
+              application/json:
+      /delete:
+        post:
+          is: ["EIP_Headers", "CancelOptions", "ErrorResponse400", "ErrorInternal500"]
+          description: Cancel EMDs.
+          body:
+            application/json:
+          responses:
+            200:
+              body:
+                application/json:
+  /tickets:
+    /{pnr}:
+      uriParameters:
+        pnr: PNR_Ref
+      post:
+        is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+        description: Issue multiple tickets. (OTA_AirPriceRQ OTA_AirPriceRS)
+        body:
+          application/json:
+            type: AirPriceRQ.OTA_AirPriceRQ
+        responses:
+          200:
+            body:
+              application/json:
+      patch:
+        description: this for re-issuing/re-validate a ticket
+      /delete:
+        post:
+          is: ["EIP_Headers", "CancelOptions", "ErrorResponse400", "ErrorInternal500"]
+          description: Cancel ticket(s). (OTA_AirPriceRQ OTA_AirPriceRS)
+          body:
+            application/json:
+              type: AirPriceRQ.OTA_AirPriceRQ
+          responses:
+            200:
+              body:
+                application/json:
+
+/payments:
+  /authorizations:
+    is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+    post:
+      description: Create a new form of payment. (OTA_PurchaseItemRQ OTA_PurchaseItemRS)
+      body:
+        application/json:
+      responses:
+        200:
+          body:
+            application/json:
+    /{PNR_ref}:
+      is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+      patch:
+        description: Update a form of payment. (OTA_PurchaseItemRQ OTA_PurchaseItemRS)
+        body:
+          application/json:
+        responses:
+          200:
+            body:
+              application/json:
+
+/utilities:
+  /rules:
+    /fare/get:
+      post:
+        is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+        description: Get fare rules (OTA_AirRulesRQ OTA_AirRulesRS)
+        body:
+          application/json:
+        responses:
+          200:
+            body:
+              application/json:
+    /minifare/get:
+      post:
+        is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+        description: Get fare mini rules (OTA_AirRulesRQ OTA_AirRulesRS)
+        body:
+          application/json:
+        responses:
+          200:
+            body:
+              application/json:
+  /localdatetime/{airport}:
+    uriParameters:
+      airport:
+        type: string
+        pattern: ^[A-Z]{3,4}$
+    get:
+      description: Retrieve the local date / time at an airport.
+      responses:
+        200:
+          body:
+            application/json:
+
+/queues:
+  /{category}/{queueId}:
+    uriParameters:
+      category:
+        type: integer
+        minimum: 0
+      queueId:
+        type: integer
+        minimum: 0
+    get:
+      is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+      queryParameters:
+        countOnly:
+          description: If true only returnd a count of the items on the queue. (OTA_AirDisplayQueueRS)
+          type: boolean
+          required: false
+      description: Retrieve a queue
+      responses:
+        200:
+          body:
+            application/json:
+    /{pnr}:
+      uriParameters:
+        pnr: PNR_Ref
+      delete:
+        is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+        description: Remove a PNR from the queue
+        responses:
+          204:
+
+/baggage:
+  /tags:
+    patch:
+      description: Update baggage information.
+      body:
+        application/json:
+      responses:
+        200:
+          body:
+            application/json:
+    /{pnr}:
+      uriParameters:
+        pnr: PNR_Ref
+      get:
+        description: Retrieve baggage tags based on the PNR.
+        responses:
+          200:
+            body:
+              application/json:
+      post:
+        description: Add new baggage tags based on the PNR.
+        body:
+          application/json:
+        responses:
+          200:
+            body:
+              application/json:
+      patch:
+        description: Update baggage tags based on the PNR.
+        body:
+          application/json:
+        responses:
+          200:
+            body:
+              application/json:
+    /get:
+      post:
+        description: Retrieve baggage tag information based on the query information criteria in the payload.
+        responses:
+          200:
+            body:
+              application/json:
+    /delete:
+      post:
+        description: Delete baggage tag information based on the query information criteria in the payload.
+    /printer/{printerID}:
+      uriParameters:
+        printerID:
+          description: Identifies the a printer
+          type: string
+      post:
+        description: Send the payload to the printer.
+
+/paymentcards:
+  /tokens:
+    is: ["EIP_Headers", "ErrorResponse400", "ErrorInternal500"]
+    post:
+      body:
+        application/json:
+          type: PaymentCard
+          example: !include creditCard.json
+      responses:
+        200:
+          body:
+            applicaiton/json:
+              type: TokenizedCard
+              example: !include creditCardResp.json
+    /{token_id}:
+      uriParameters:
+        token_id: string
+      delete:
+        responses:
+          204:

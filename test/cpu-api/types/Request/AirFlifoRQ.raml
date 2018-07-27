@@ -1,0 +1,92 @@
+#%RAML 1.0 Library
+
+usage: AirFlifo
+
+uses:
+  airCommonTypes: ../../library/OTA/AirCommonTypes.raml
+  commonTypes: ../../library/OTA/CommonTypes.raml
+  simpleTypes: ../../library/OTA/SimpleTypes.raml
+
+types:
+  OTA_AirFlifoRQ:
+    description: "Retrieve real-time flight departure, arrival and gate information for a particular flight, including actual as well as scheduled departure and arrival times."
+    type: object
+    required: false
+    properties: 
+      OTA_PayloadStdAttributes:
+        type: commonTypes.OTA_PayloadStdAttributes
+        description: "OTA_PayloadStdAttributes"
+        required: false
+      POS:
+        description: "Point of sale object."
+        type: commonTypes.POS_Type
+        required: false
+      Airline:
+        description: "Specify airline to request FLIFO details."
+        type: commonTypes.CompanyNameType
+        required: false
+      FlightNumber:
+        description: "Specific flight number to request details for. Requires that Airline is also supplied."
+        type: simpleTypes.FlightNumberType
+        required: false
+      DepartureDate:
+        description: "Date of departure for flight information."
+        type: object
+        required: false
+        properties: 
+          Content:
+            description: "Departure Date"
+            type: date-only
+            required: true
+          DepartureTime:
+            description: "Time of day to look for FLIFO"
+            type: time-only
+            required: false
+      DepartureAirport:
+        description: "Specifies the departure location."
+        type: commonTypes.LocationType
+        required: false
+      ArrivalAirport:
+        description: "Specifies the arrival location."
+        type: commonTypes.LocationType
+        required: false
+      FlightSegment:
+        description: "The flight for which flifo information is being requested."
+        type: object[]
+        minItems: 0
+        maxItems: 999
+        items: 
+          properties: 
+            Airline:
+              description: "Specify airline to request FLIFO details."
+              type: commonTypes.CompanyNameType
+              required: false
+            FlightNumber:
+              description: "Specific flight number to request details for. Requires that Airline is also supplied."
+              type: simpleTypes.FlightNumberType
+              required: false
+            DepartureDate:
+              description: "Date of departure for flight information."
+              type: object
+              required: false
+              properties: 
+                Content:
+                  description: "Date of departure for flight information."
+                  type: date-only
+                  required: true
+                DepartureTime:
+                  description: "Time of day to look for FLIFO."
+                  type: time-only
+                  required: false
+            DepartureAirport:
+              description: "Specifies the departure location."
+              type: commonTypes.LocationType
+              required: false
+            ArrivalAirport:
+              description: "Specifies the arrival location."
+              type: commonTypes.LocationType
+              required: false
+            UTC_PreferenceInd:
+              description: "When true, times should be returned in UTC (Universal Time Coordinate).  When false, times should be returned in local time.  If attribute is not included time is assumed to be local time."
+              type: boolean
+              required: false

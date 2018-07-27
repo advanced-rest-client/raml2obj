@@ -1,0 +1,61 @@
+#%RAML 1.0 Library
+
+usage: AirBookRS
+
+uses:
+  airCommonTypes: ../../library/OTA/AirCommonTypes.raml
+  commonTypes: ../../library/OTA/CommonTypes.raml
+  simpleTypes: ../../library/OTA/SimpleTypes.raml
+
+types:
+  AirReservation_AirReservationType:
+    type: airCommonTypes.AirReservationType
+    properties:
+      Offer:
+        description: "Merchandising offer information."
+        type: airCommonTypes.AirOfferChoiceType
+        required: false
+      CreateDateTime:
+        description: "Provides the original PNR creation date/time."
+        type: simpleTypes.DateOrDateTimeType
+        required: false
+  AirReservation:
+    description: "Contains all booking response information pertaining to a completed reservation."
+    type: array
+    minItems: 0
+    maxItems: 9
+    items: AirReservation_AirReservationType
+  OTA_AirBookRS:
+    description: "The Book Response message contains the itinerary, passenger and pricing information sent in the request, along with a Booking reference number (PNR Locator) and ticketing information if the booking was successful. This message contains similar information to a standard airline CRS or GDS Display PNR message."
+    type: object
+    required: false
+    properties: 
+      Content:
+        description: "OTA_PayloadStdAttributes"
+        type: commonTypes.OTA_PayloadStdAttributes
+        required: true
+      Cancel:
+        description: "AWG to revisit. "
+        type: boolean
+        required: false
+      PriceInd:
+        description: "When true, pricing was requested along with the booking."
+        type: boolean
+        required: false
+# Do not need error or success
+#      Errors:
+#        description: "Errors"
+#        type: commonTypes.ErrorsType
+#        required: true
+#      Success:
+#        description: "Success"
+#        type: commonTypes.SuccessType
+#        required: true
+      Warnings:
+        description: "Warnings"
+        type: commonTypes.WarningsType
+        required: false
+      AirReservation:
+        description: "Air Reservations"
+        type: AirReservation
+        required: false

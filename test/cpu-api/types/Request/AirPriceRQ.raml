@@ -1,0 +1,70 @@
+#%RAML 1.0 Library
+
+uses:
+  airCommonTypes: ../../library/OTA/AirCommonTypes.raml
+  commonTypes: ../../library/OTA/CommonTypes.raml
+  simpleTypes: ../../library/OTA/SimpleTypes.raml
+
+types:
+  FlightReference_DateTimeSpanGroup:
+    type: commonTypes.DateTimeSpanGroup
+    required: true
+    properties: 
+      FlightRefNumber:
+        description: "The flight number(s) for which pricing is requested."
+        type: simpleTypes.StringLength1to64
+        required: false
+      FareBasisCode:
+        description: "Used to specify the fare basis code to be used in pricing for these flight segments."
+        type: simpleTypes.StringLength1to16
+        required: false
+      OpenJawInd:
+        description: "When true, the flight segment is to be priced as open jaw. When false, do not price as open jaw."
+        type: boolean
+        required: false 
+  OTA_AirPriceRQ:
+    description: "The Price Request message requests pricing information for specific flights on specific dates for a specific number and type of passengers. Optional information in the message allows fare restriction preferences and negotiated fare contract codes to be included in the message. The pricing request contains the information necessary to perform an availability / sell from availability / price series of entries on an airline CRS or GDS."
+    type: commonTypes.OTA_PayloadStdAttributes
+    required: false
+    properties: 
+      POS:
+        description: "Point of sale object."
+        type: commonTypes.POS_Type
+        required: true
+      AirItinerary:
+        description: "The Air Itineraries to be priced."
+        type: airCommonTypes.AirItineraryType
+        required: false
+      TravelerInfoSummary:
+        description: "Specify passenger numbers and types."
+        type: [object, airCommonTypes.TravelerInfoSummaryType]
+        required: true
+        properties: 
+          PaymentDetail:
+            description: "Used to specify the planned method of payment."
+            type: commonTypes.PaymentDetailType
+            required: false
+          PricingPref:
+            description: "Used to specify a passenger or processing pricing preference."
+            type: array
+            minItems: 0
+            maxItems: 20
+            items: airCommonTypes.PricingInfoGroup
+      BookingReferenceID:
+        description: "The PNR address of the booking which needs to be priced."
+        type: commonTypes.UniqueID_Type
+        required: false   
+      FlightReference:
+        description: "Used to reference flight segments that have already been booked for which pricing is requested."
+        type: array
+        minItems: 0
+        maxItems: 16
+        items: FlightReference_DateTimeSpanGroup
+      Offer:
+        description: "Merchandising offers associated with the fare or traveler."
+        type: airCommonTypes.AirOfferChoiceType
+        required: false
+      Type:
+        description: "Used to specify the type of pricing requested."
+        type: simpleTypes.AlphaNumericStringLength1to14
+        required: false
