@@ -10,13 +10,13 @@
     "url": "https://github.com/raml2html/raml2obj/issues"
   },
   "dependencies": {
-    "datatype-expansion": "^0.3.4"
+    "datatype-expansion": "^0.3.5"
   },
   "devDependencies": {
     "chai": "^4.1.0",
     "glob": "7.1.x",
     "mocha": "^5.2.0",
-    "raml-1-parser": "^1.1.45"
+    "raml-1-parser": "1.1.48"
   },
   "homepage": "https://github.com/raml2html/raml2obj",
   "keywords": [
